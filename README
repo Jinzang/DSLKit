@@ -2,10 +2,9 @@
 
 DSLKit -- A set of classes for creating a Domain Specific Language
 
-=head1 USAGE
+=head1 DESCRIPTION
 
 You create a new language by adding classes to the base code. Each class
 implements a new command and are named <Name>Command, where <name> is the
-command. Commands use DSLVar, DSLBlock, DSLCode, or DSLCmd as their base class.
-
-More documentation will follow.
+command. Documentation for using and creating language commands is contained
+in each class. Start by reading the documentation in DSLMain.
