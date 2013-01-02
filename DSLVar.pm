@@ -200,7 +200,7 @@ sub interpolate_var {
 }
 
 #-----------------------------------------------------------------------
-# Run the interpreter
+# Interpret a line containing a command
 
 sub interpret_a_line {
     my ($self, $reader, $line, $context) = @_;
@@ -478,99 +478,142 @@ DSLVar -- Base class for DSL objects
 
 =head1 SYNOPSIS
 
-    # Syntax examples
+    # Examples of variable use in Perl
+    my $var = DSLVar->new($self, 'name');
+    $var->set_value('foobar');
+    my $value = $var->get_value();
+    my $name = $var->get_name();
+
+    # Syntax examples of variable use in scripts
     $x value
     $y multiple values
     $z 'a single value'
     $a "interpolated $x"
     # Assignment of command result to variable
-    $b [cmd args]
+    $b [cmd arg1 arg2]
 
-=head1 USAGE
+=head1 SYNOPSIS
 
-This class implements parsing for Domain Specific Languages (DSLs) and
-implements the most basic type of objects, variable. One feature of this code
-is that every command is an class and each use of a command is a variable which
-is an instance of that class. The base class implements simple variables whose
-method is assignment. In addition to the method that the variables runs, there
-are also methods to parse the command line that the variable is used on. Each
-class inherits the parsing code and can override it.
+This class implements the most basic type of object, variable. One feature of
+the DSL code is that every command is an class and each use of a command is a
+variable which is an instance of that class. This class implements simple
+variables whose runtime method is assignment.
 
-=head1 SYNTAX
+Each variable has three fields: VALUE, an array reference which contains the
+value of the object, STATE, a hash reference which contains the object state
+that is used when the object is run, and SETUP, a scalar which flags if the
+setup method has been called so the teardown method can be called. It optionally
+has two other fields: NAME, the name of the variable, and PARENT, a reference to
+the containing object.
 
-The syntax of a DSL script is line oriented. Each command is implemented as a
-line or block of lines. Lines are divided into arguments, which are either
-strings or variables. Variables are prefaced with a dollar sign ($), strings
-are not. If a string contains blanks or other characters with special meaning,
-it should be surrounded by single quotes. If double quotes are used, variables
-can be interpolated, just as in Perl. A backslash turns off the special meaning
-of the following character. Parts of a line inside square brackets are
-interpreted as a command and replaced by the command's results. This is how
-the result of a command is assigned to a variable.
+=head1 METHODS
 
-The the class of the first argument on a line specifies how the line is parsed
-and what code is run with the remaining arguments. If the first argument is a
-string, an unnamed variable of that class is created and then that variable's
-code is run. For example, if the string is log, an unnamed variable of the
-LogCommand class is created.
+=head2 new
 
-=head1 FIELDS
+    $var = DSLVar->new($parent, 'name');
+    
+New variables are automatically created in a script whenever it parses a word
+preceded by a dollar sign. You create a variable in code by calling new. The
+first argument is the container object, usually the object whose method is
+calling new. The second argument is the name of the variable, which can be used
+to retrieve it later. New can be called without any arguments, in which case
+it creates an anonymous variable.
 
-Each variable has the fields:
+When subclassing, you will overload one of the following three methods,
+depending on how much control you need.
 
-=over
+=head2 run
 
-=item STATE
+    my $value = $var->run(@args);
+    
+The run method returns a list containing the values of the arguments passed to
+it, or the value of the variable if called with no arguments. 
 
-A hash which contains the state of a variable, which holds the persistent
-information about the the object. For simple variables the state is unused.
-The state is accessed by the methods get and set.
+=head2 execute
 
-=item VALUE
+    $var = $var->execute($cmd, @args);
 
-An array containing the value or values of the variable. The values are
-accessed by the methods get_value and set_value.
+The execute method sets the value of the variable to the concatenated values
+of the arguments. The first argument is a reference to the object itself and
+is not used. It returns the object which invokes it. Execute calls run after
+flattening the arguments it is called with into a single list. It should store
+the value returned by run in the VALUE field.
 
-=item SETUP
+=head2 interpret_some_lines
 
-A field indicating the the class's setup method has been called. This is not
-used by simple variables.
+    $var = $var->interpret_some_lines($reader, $context, $cmd, @args);
 
-=back
+The most general way to invoke a variable is with this method. The first
+argument, $reader, is an object with a next_line method, which gets the next
+line of the script. Context is a reference to the argument list that the
+containing object was invoked with. The remaining arguments are the same as
+those of run and execute.
 
-A variable optionally has these fields. They are sepcified when creating the
-object with the new method and not changed afterwards.
+This method would be used by classes subclassing DSLVar if they have multiple
+lines or need to use the arguments of the object invoking it. 
 
-=over
+=head2 setup
 
-=item PARENT
+    $var->setup();
+    
+The setup method is called on an object after its state in initialized. It is
+not used by simple variables.
 
-The object containing the variable, usually the object creating it. The topmost
-object and unnamed objects have no PARENT field.
+=head2 teardown
 
-=item NAME
+    $var->teardown();
 
-The name of the variable.
+The teardown method is called at the end of the script on each object where
+the setup method was called. It is not used by simple variables.
 
-=back
+This class also supports a number of getters and setters for its fields
 
-The topmost variable represents the script. It is found by tracing up the parent
-chain. It can be accessed by calling the get_top method. The STATE hash of the
-topmost variable contains references to all the variables keyed by their names.
-They are accessed by the get_var and set_var methods. Additional information is
-stored on the following fields:
+=head2 get set
 
-=over
- 
-=item LOG
+   $var->get('name');
+   $var->set('name', $value);
 
-This field contains all the log messages generated by the script. It is accessed
-by the methods get_log and put_log.
+Get and set a field in the STATE of the variable. Simple variables do not use
+their state.
 
-=item STATUS
+=head2 get_value set_value
 
-This field contains a numeric code representing the status of the script. It is
-accessed through the get_script_status and set_script_status fields. The numeric
-codes are early exit=0 normal exit=1 error exit=2.
+    my $value = $var->get_value();
+    $var->set_value($value);
 
-=back
+The value returned by get_value is an array reference. If set_value is called
+with an argument that is not an array reference, it is enclosed in an array
+when it is stored.
+
+=head2 get_name
+
+    my $name = $var->get_name();
+    
+Get the name of a variable. Returns undef if it has none.
+
+=head2 get_top
+
+    my $top = $var->get_top();
+
+Return the topmost variable, which is found by tracing up the PARENT refernces.
+The topmost variable has several extra fields, which can be retrieved from any
+variable by several other methods.
+
+=head2 get_script_status set_script_status
+
+    my $code = $var->get_script_status();
+    $var->set_script_status($code);
+    
+The status of the script is accessed through the get_script_status and
+set_script_status fields. The numeric codes are early exit=0 normal exit=1
+error exit=2.
+
+=head2 get_log put_log clear_log
+
+    my $msg = $var->get_log();
+    $var->put_log();
+    $var->clear_log();
+
+The get_log method retrieves all the log messages. The put_log method appends
+a message to the log. The clear_log method removes any messages. Any messages in
+the log are printed when the script exits.
