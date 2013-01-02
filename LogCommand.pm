@@ -70,8 +70,8 @@ sub mail_message {
 #-----------------------------------------------------------------------
 # Write a log message
 
-sub run {
-    my ($self, @args) = @_;
+sub execute {
+    my ($self, $cmd, @args) = @_;
 
     my $i = 0;
     my $msg = '';
@@ -85,10 +85,10 @@ sub run {
         }
     }
 
-    $msg .= "\n";
-    $self->put_log($msg);
-    
-    return $msg;
+    $self->put_log("$msg\n");
+    $self->set_value($msg);
+
+    return $self;
 }
 
 #----------------------------------------------------------------------
