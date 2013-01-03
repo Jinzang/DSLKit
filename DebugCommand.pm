@@ -55,3 +55,28 @@ sub terminator {
 }
 
 1;
+__END__
+=head1 NAME
+
+DebugCommand -- Stop and interpret commands interactively
+
+=head1 SYNOPSIS
+
+    debug
+    > show LOG
+    > quit
+
+=head1 DESCRIPTION
+
+This command stops the interpretation of the script and prompts the user for
+input. The user enters commands, which are interpreted. When the user types
+quit, interpretation of the script continues with the next line.
+
+=head1 ARGUMENTS
+
+This command does not take any arguments.
+
+=head1 PARAMETERS
+
+This command does not use any parameters
+

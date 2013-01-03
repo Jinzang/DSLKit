@@ -119,7 +119,7 @@ ShowCommand -- Display the fields of an object (variable)
     show $db STATE
     show ^ Database
 
-=head1 USAGE
+=head1 DESCRIPTION
 
 The show command displays specified fields of a variable. It is most often used
 interactively, following the debug command.
@@ -147,5 +147,5 @@ One or more field names, specifying which data is to be displayed.
 
 =head1 PARAMETERS
 
-This command doe not use any parameters
+This command does not use any parameters
 
