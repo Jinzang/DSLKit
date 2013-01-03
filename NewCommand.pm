@@ -41,13 +41,13 @@ sub interpret_some_lines {
     $obj->{STATE} = $self->parse_some_lines($reader, @args);
 
     $obj->setup();    
-    my $setup = $self->get('setup') || 0;
+    my $setup = $parent->get('setup') || 0;
     $setup ++;
     
-    $self->set('setup', $setup);
+    $parent->set('setup', $setup);
     $obj->{SETUP} = $setup;
 
-    return $self;
+    return $obj;
 }
 
 1;
@@ -65,7 +65,7 @@ NewCommand -- Set parameters for other commands
     a multi-line field
     end
 
-=head1 USAGE
+=head1 DESCRIPTION
 
 The new command creates and initializes the state of a variable
 
