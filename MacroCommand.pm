@@ -29,7 +29,8 @@ sub interpret_some_lines {
     my $name = $var->get_name();
 
     my @lines = $self->read_some_lines($reader);
-    my $obj = DSLMacro->new($self, $name);
+    my $parent = $self->{PARENT} || $self;
+    my $obj = DSLMacro->new($parent, $name);
     $obj->set('code', \@lines);
   
     return $self;
