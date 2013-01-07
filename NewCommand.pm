@@ -47,7 +47,7 @@ sub interpret_some_lines {
     $parent->set('setup', $setup);
     $obj->{SETUP} = $setup;
 
-    return $obj;
+    return $self;
 }
 
 1;
