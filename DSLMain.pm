@@ -17,7 +17,7 @@ use LineReader;
 
 sub new {
     my ($pkg, %config) = @_;
-    
+
     my $self = DSLCode->new();
     while (my ($name, $value) = each %config) {
         my $var = DSLVar->new($self, $name);
@@ -33,7 +33,7 @@ sub new {
 sub create_stage_dir {
     my ($self) = @_;
 
-    my $stage_dir = $self->get_string('stage_dir');
+    my $stage_dir = $self->get_string_value('stage_dir');
     return unless defined $stage_dir;
 
     $self->delete_stage_dir() if -e $stage_dir;
@@ -50,7 +50,7 @@ sub create_stage_dir {
 sub delete_stage_dir {
     my ($self) = @_;
 
-    my $stage_dir = $self->get_string('stage_dir');
+    my $stage_dir = $self->get_string_value('stage_dir');
     return unless defined $stage_dir;
     my $base_dir = $ENV{HOME} || '';
 
@@ -69,7 +69,7 @@ sub error {
 
     $self->put_log($error);
     $self->set_script_status(2);
-    
+
     return;
 }
 
@@ -78,27 +78,15 @@ sub error {
 
 sub get_reader {
     my ($self, @args) = @_;
-    
+
     my $reader;
     if (@args) {
         $reader = ScriptReader->new(@args);
     } else {
         $reader = LineReader->new(["debug\n"]);
     }
-    
+
     return $reader;
-}
-
-#-----------------------------------------------------------------------
-# Get a variable as a string
-
-sub get_string {
-    my ($self, $name) = @_;
-
-    my $var = $self->get_var($name);
-    return unless $var;
-
-    return $var->if_string();
 }
 
 #-----------------------------------------------------------------------
@@ -124,18 +112,18 @@ sub main {
 
 sub setup {
     my ($self, $script_name, @args) = @_;
-    
+
     $self->set_script_status(1);
     $self->put_log("This script is $script_name\n") if $script_name;
-    
+
     my $cmd = NAME_COMMAND;
     my $uname = `$cmd`;
     chomp($uname);
 
     my $text = 'Script was run at ' . localtime() . " on $uname\n";
     $self->put_log($text);
-    
-    return; 
+
+    return;
 }
 
 #----------------------------------------------------------------------
@@ -150,17 +138,17 @@ sub teardown {
     foreach my $name (@names) {
         my $obj = $self->get($name);
         next unless ref $obj && $obj->{SETUP};
-        
+
         eval {$obj->teardown()};
         $self->error($@) if $@;
     }
 
     eval {$self->delete_stage_dir()};
     $self->error($@) if $@;
-    
+
     my $msg = $self->get_log();
     print $msg if $msg;
-    
+
     return;
 }
 
@@ -181,7 +169,7 @@ DSLMain -- Top level for DSL scripts
 
 DSL scripts are line delimeted lists of commands. Blanks lines and all
 characters following a sharp character are ignored. Some commands are blocks
-of lines, in which case the block is terminated by an end on its own line. 
+of lines, in which case the block is terminated by an end on its own line.
 Lines can contain subcommands, which are enclosed in square brackets. These
 subcommands are run first and the replaced by their return value.
 
@@ -246,7 +234,7 @@ the script. If it is not present, the directory will not be created.
 =head2 main
 
     $obj->main($filename, @args);
-    
+
 The main method should be called after creating the object with new. The first
 argument is a filename of a script containing command lines to be interpreted.
 The remaining arguments should be scalars. They can be accessed in the script

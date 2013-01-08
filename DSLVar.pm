@@ -17,7 +17,7 @@ sub new {
     $self =  bless($self, $pkg);
 
     $self->{PARENT} = $parent if defined $parent;
-    
+
     if (defined $name) {
         $self->{NAME} = $name;
         $parent->set_var($name, $self);
@@ -30,7 +30,7 @@ sub new {
 # Check arguments to run
 
 sub check {
-    my ($self, @args) = @_;  
+    my ($self, @args) = @_;
     return;
 }
 
@@ -63,7 +63,7 @@ sub execute {
 
 sub flatten {
     my ($self, @args) = @_;
-    
+
     my @list;
     foreach my $arg (@args) {
         if (ref $arg) {
@@ -74,7 +74,7 @@ sub flatten {
             push(@list, $arg);
         }
     }
-    
+
     return @list;
 }
 
@@ -95,7 +95,7 @@ sub get_log {
     my ($self) = @_;
 
     my $top = $self->get_top();
-    return $top->{LOG}; 
+    return $top->{LOG};
 }
 
 #-----------------------------------------------------------------------
@@ -103,7 +103,7 @@ sub get_log {
 
 sub get_name {
     my ($self) = @_;
-    
+
     return exists $self->{NAME} ? $self->{NAME} : undef;
 }
 
@@ -111,7 +111,7 @@ sub get_name {
 # Convert a command to package name, load the package, and create an object
 
 sub get_pkg {
-    my ($self, $cmd, $name) = @_;    
+    my ($self, $cmd, $name) = @_;
 
     my $obj;
     if (ref $cmd) {
@@ -133,7 +133,43 @@ sub get_script_status {
     my ($self) = @_;
 
     my $top = $self->get_top();
-    return $top->{STATUS}; 
+    return $top->{STATUS};
+}
+
+#-----------------------------------------------------------------------
+# Get the value of a string valued variable
+
+sub get_string_value {
+    my ($self, $name, $context) = @_;
+
+    my $obj;
+    if (! defined $name) {
+        $obj = $self;
+
+    } elsif (defined $context && $name =~ /^(\d+)$/) {
+        return unless $name < @$context;
+        $obj = $context->[$1];
+
+    } else {
+        $obj = $self->get_var($name);
+        return unless defined $obj;
+    }
+
+    my $value;
+    if (ref $obj) {
+        my $val = $obj->get_value();
+        my $name = $obj->get_name();
+
+        return unless @$val;
+        return if @$val > 1 || ref $val->[0];
+
+        $value = $val->[0];
+
+    } else {
+        $value = $obj;
+    }
+
+    return $value;
 }
 
 #-----------------------------------------------------------------------
@@ -144,7 +180,7 @@ sub get_top {
 
     my $parent = $self;
     $parent = $parent->{PARENT} while exists $parent->{PARENT};
-    return $parent;    
+    return $parent;
 }
 
 #-----------------------------------------------------------------------
@@ -170,33 +206,7 @@ sub get_var {
 
 sub if_string {
     my ($self) = @_;
-    
-    my $val = $self->get_value();
-    my $name = $self->get_name();
-    
-    die "$name has no value\n" unless @$val;
-    die "$name is not a string\n" if @$val > 1 || ref $val->[0];
 
-    return $val->[0];
-}
-
-#-----------------------------------------------------------------------
-# Interpolate a variable value into a string
-
-sub interpolate_var {
-    my ($self, $name, $context) = @_;
-
-    my $obj;
-    if ($name =~ /^(\d+)$/) {
-        die "Undefined variable: \$$name\n" unless $name < @$context;
-        $obj = $context->[$1];
-
-    } else {
-        $obj = $self->get_var($name);
-        die "Undefined variable: \$$name\n" unless defined $obj;
-    } 
-    
-    return ref $obj ? $obj->if_string() : $obj;
 }
 
 #-----------------------------------------------------------------------
@@ -208,7 +218,7 @@ sub interpret_a_line {
     my @args;
     ($line, @args) = $self->parse_a_line($line, $context);
     die "Unmatched bracket: $line\n" if $line;
-    
+
     my $obj = shift(@args);
     return $obj->interpret_some_lines($reader, $context, $obj, @args);
 }
@@ -236,9 +246,9 @@ sub next_arg {
             ($line, @args) = $self->parse_a_line($line, $context);
             my $obj = shift(@args);
             $arg = $obj->interpret_some_lines([], $context, $obj, @args);
-            
+
         } elsif ($line =~ s/^\]//) {
-            # End of bracketed expression: return           
+            # End of bracketed expression: return
             last;
 
         } elsif ($line =~ s/^\$\*//) {
@@ -261,7 +271,7 @@ sub next_arg {
             # Double quoted string: interpolate any variables in it
             die "Missing quote: $line\n" unless $2;
             $arg = $1;
-            $arg =~ s/(?<!\\)\$(\w+)/$self->interpolate_var($1, $context)/eg;
+            $arg =~ s/(?<!\\)\$(\w+)/$self->get_string_value($1, $context)/eg;
             $arg =~ s/(?<!\\)\\//g;
             $arg =~ s/\\\\/\\/g;
 
@@ -284,7 +294,7 @@ sub next_arg {
             last;
         }
     }
-    
+
     return ($line, $arg);
 }
 
@@ -299,7 +309,7 @@ sub parse_a_line {
 
     die "Empty brackets: $line\n" unless defined $cmd;
     my $obj = $self->get_pkg($cmd);
-    
+
     my ($arg, @args);
     push(@args, $obj);
 
@@ -309,7 +319,7 @@ sub parse_a_line {
 
         push(@args, $arg);
     }
-    
+
     return ($line, @args);
 }
 
@@ -319,10 +329,10 @@ sub parse_a_line {
 sub put_log {
     my ($self, $msg) = @_;
 
-    my $top = $self->get_top();    
+    my $top = $self->get_top();
     $top->{LOG} = '' unless exists $top->{LOG};
     $top->{LOG} .= $msg;
-    
+
     return;
 }
 
@@ -350,7 +360,7 @@ sub set {
     my ($self, $name, $value) = @_;
 
     $self->{STATE}{$name} = $value;
-    return;    
+    return;
 }
 
 #-----------------------------------------------------------------------
@@ -369,7 +379,7 @@ sub set_script_status {
 
     my $top = $self->get_top();
     $top->{STATUS} = $value;
-    return;    
+    return;
 }
 
 #-----------------------------------------------------------------------
@@ -386,7 +396,7 @@ sub set_value {
 
     $self->{VALUE} = $value;
 
-    return;    
+    return;
 }
 
 #-----------------------------------------------------------------------
@@ -398,7 +408,7 @@ sub set_var {
     my $top = $self->get_top();
     $top->set($name, $obj);
 
-    return;    
+    return;
 }
 
 #-----------------------------------------------------------------------
@@ -406,7 +416,7 @@ sub set_var {
 
 sub status {
     my ($self) = @_;
-    
+
     return 1;
 }
 
@@ -415,10 +425,10 @@ sub status {
 
 sub stringify {
     my ($self) = @_;
-    
+
     my $val = $self->get_value();
     $val = $self->to_string($val);
-    
+
     return $val;
 }
 
@@ -443,7 +453,7 @@ sub terminator {
 
 sub to_string {
     my ($self, $val) = @_;
-    
+
     my $str;
     my $ref = ref $val;
 
@@ -511,7 +521,7 @@ the containing object.
 =head2 new
 
     $var = DSLVar->new($parent, 'name');
-    
+
 New variables are automatically created in a script whenever it parses a word
 preceded by a dollar sign. You create a variable in code by calling new. The
 first argument is the container object, usually the object whose method is
@@ -525,9 +535,9 @@ depending on how much control you need.
 =head2 run
 
     my $value = $var->run(@args);
-    
+
 The run method returns a list containing the values of the arguments passed to
-it, or the value of the variable if called with no arguments. 
+it, or the value of the variable if called with no arguments.
 
 =head2 execute
 
@@ -550,12 +560,12 @@ containing object was invoked with. The remaining arguments are the same as
 those of run and execute.
 
 This method would be used by classes subclassing DSLVar if they have multiple
-lines or need to use the arguments of the object invoking it. 
+lines or need to use the arguments of the object invoking it.
 
 =head2 setup
 
     $var->setup();
-    
+
 The setup method is called on an object after its state in initialized. It is
 not used by simple variables.
 
@@ -588,7 +598,7 @@ when it is stored.
 =head2 get_name
 
     my $name = $var->get_name();
-    
+
 Get the name of a variable. Returns undef if it has none.
 
 =head2 get_top
@@ -603,7 +613,7 @@ variable by several other methods.
 
     my $code = $var->get_script_status();
     $var->set_script_status($code);
-    
+
 The status of the script is accessed through the get_script_status and
 set_script_status fields. The numeric codes are early exit=0 normal exit=1
 error exit=2.

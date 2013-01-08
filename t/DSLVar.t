@@ -1,4 +1,4 @@
-#!/usr/bin/env perl 
+#!/usr/bin/env perl
 use strict;
 use warnings;
 
@@ -57,18 +57,13 @@ is_deeply($val, $obj, "Create named var"); # test 13
 $val = $obj->get_var('not');
 is($val, undef, "Non-existent var"); # test 14
 
-$ok = 'test';
-$obj->set_value($ok);
-my $test = $obj->if_string();
-is($test, $ok, "if string"); # test 15
-
 $obj->set_value(['one', 'two']);
-$test = $obj->stringify();
-is($test, "one\ntwo", "Stringify list variable"); # test 16
+my $test = $obj->stringify();
+is($test, "one\ntwo", "Stringify list variable"); # test 15
 
 $obj->set_value({'one' => 1, 'two' => 2});
 $test = $obj->stringify();
-is($test, "one: 1 two: 2", "Stringify hash variable"); # test 17
+is($test, "one: 1 two: 2", "Stringify hash variable"); # test 16
 
 my $lines = [];
 my $one = DSLVar->new($top, 'one');
@@ -77,26 +72,31 @@ $one->set_value(1);
 $ok = $one->get_value();
 $two->interpret_some_lines($lines, [], $two, $one);
 $val = $two->get_value();
-is_deeply($val, $ok, "run with scalar value"); # test 18
+is_deeply($val, $ok, "run with scalar value"); # test 17
 
 $one->set_value('one');
 $two->set_value('two');
 $two->interpret_some_lines($lines, [], $two, $one, $two);
 $val = $two->get_value();
-is_deeply($val, ['one', 'two'], "run with multiple args"); # test 19
+is_deeply($val, ['one', 'two'], "run with multiple args"); # test 18
 
 $obj = DSLVar->new($top, 'ok');
 $obj->set_value('test');
 
-my $context = ['foo', 'bar'];
-$test = $top->interpolate_var('ok', $context);
-is($test, 'test', "Interpolate named variable"); # test 20
+$ok = 'test';
+$obj->set_value($ok);
+$test = $obj->get_string_value();
+is($test, $ok, "Get string value, no args"); # test 19
 
-$test = $top->interpolate_var('1', $context);
-is($test, 'bar', "Interpolate numbered string"); # test 21
+my $context = ['foo', 'bar'];
+$test = $top->get_string_value('ok',);
+is($test, 'test', "Get string value, one arg"); # test 20
+
+$test = $top->get_string_value('1', $context);
+is($test, 'bar', "Get string value, two args"); # test 21
 
 $context = ['foo', $obj];
-$test = $top->interpolate_var('1', $context);
+$test = $top->get_string_value('1', $context);
 is($test, 'test', "Interpolate numbered variable"); # test 22
 
 $context = [];
@@ -112,7 +112,7 @@ is($arg, 'don\'t care', "Single quoted string with escape"); # test 26
 
 ($line, $arg) = $top->next_arg("\"\\\$ok\"", $context);
 is($arg, '$ok',"Double quoted string with escape"); # test 27
- 
+
 $context = ['mock', 'bar'];
 ($line, $arg) = $top->next_arg("\"foo\$1\"", $context);
 is($arg, 'foobar', "Double quoted string with context variable"); # test 28
@@ -142,4 +142,3 @@ my $a = DSLVar->new($top,'a');
 my $b = DSLVar->new($top, 'b');
 ($line, @args) = $top->parse_a_line('$a [$b 3]', $context);
 is_deeply(\@args, [$a, $b], "Parse bracketed expression"); # test 35
-
