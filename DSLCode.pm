@@ -15,9 +15,8 @@ use base qw(DSLBlock);
 sub parse_some_lines {
     my ($self, $reader, @context) = @_;
     
-    my $obj;
     while (defined (my $line = $self->get_line($reader, \@context))) {       
-        $obj = $self->interpret_a_line($reader, $line, \@context);
+        my $obj = $self->interpret_a_line($reader, $line, \@context);
 
         if ($obj->status() == 0) {
             $self->set_script_status(0);
@@ -25,7 +24,7 @@ sub parse_some_lines {
         }
     }
 
-    return $obj;
+    return $self;
 }
 
 #-----------------------------------------------------------------------

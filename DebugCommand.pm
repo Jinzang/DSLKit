@@ -29,21 +29,19 @@ sub get_line {
 sub interpret_some_lines {
     my ($self, $reader, $context, $cmd, @args) = @_;
 
-    my $obj;
     $reader = InputReader->new();
-
-    while (defined (my $line = $self->get_line($reader, $context))) {       
+    while (defined (my $line = $self->get_line($reader, $context))) {
         eval {
             $reader->set_prompt(SECOND_PROMPT);
-            $obj = $self->interpret_a_line($reader, $line, $context);
+            my $obj = $self->interpret_a_line($reader, $line, $context);
             my $val = $obj->stringify();
             print "$val\n" if $val;
         };
 
         print "Error: $@\n" if $@;
     }
-    
-    return $obj;
+
+    return $self;
 }
 
 #-----------------------------------------------------------------------
@@ -79,4 +77,3 @@ This command does not take any arguments.
 =head1 PARAMETERS
 
 This command does not use any parameters
-
