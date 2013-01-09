@@ -161,9 +161,7 @@ sub get_string_value {
         my $name = $obj->get_name();
 
         return unless @$val;
-        return if @$val > 1 || ref $val->[0];
-
-        $value = $val->[0];
+        $value = join(',', @$val);
 
     } else {
         $value = $obj;
