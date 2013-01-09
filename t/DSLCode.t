@@ -4,7 +4,7 @@ use strict;
 use FindBin qw($Bin);
 use lib "$Bin/..";
 
-use Test::More tests => 8;
+use Test::More tests => 7;
 use LineReader;
 
 BEGIN {use_ok("DSLCode");} # test 1
@@ -43,7 +43,3 @@ is_deeply($val, [1], "Interpret a line"); # test 6
 $obj = $code->get_var('abe');
 $val = $obj->get_value();
 is_deeply($val, [1], "Interpret some lines"); # test 7
-
-$obj = $code->parse_some_lines($reader, $context);
-$val = $obj->get_value();
-is_deeply($val, [4, 5], "Parse some lines"); # test 8
