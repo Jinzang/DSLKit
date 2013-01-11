@@ -13,17 +13,17 @@ use base qw(DSLVar);
 # Show one level of the contents of a variable
 
 sub execute {
-    my ($self, $cmd, @args) = @_;
+    my ($self, @args) = @_;
 
     my ($var, @fields) = $self->parse_args(@args);
     my $data = $self->find_data($var, @fields);
-    
+
     my $values;
     if (defined $data) {
         my $name = $var->get_name();
         $self->set('var', $name);
         $self->set('fields', \@fields);
-        
+
         $values = $self->get_data($data);
     }
 
@@ -36,15 +36,15 @@ sub execute {
 
 sub find_data {
     my ($self, $var, @fields) = @_;
-    
+
     my $data = $var;
     foreach my $field (@fields) {
         return unless defined $data;
-        
+
         if ($data =~ /ARRAY/) {
             return unless $field =~ /^\d+$/;
             $data = $data->[$field];
-            
+
         } elsif ($data =~ /HASH/) {
             return unless exists $data->{$field};
             $data = $data->{$field};
@@ -62,7 +62,7 @@ sub find_data {
 
 sub get_data {
     my ($self, $data) = @_;
-    
+
     my @values;
     if ($data =~ /ARRAY/) {
         foreach my $item (@$data) {
@@ -76,7 +76,7 @@ sub get_data {
     } else {
         push(@values, $data);
     }
-    
+
     return \@values;
 }
 
@@ -148,4 +148,3 @@ One or more field names, specifying which data is to be displayed.
 =head1 PARAMETERS
 
 This command does not use any parameters
-

@@ -11,11 +11,11 @@ use LineReader;
 # Store the text of a macro
 
 sub interpret_some_lines {
-    my ($self, $lines, $context, $cmd, @args) = @_;
+    my ($self, $lines, $context, @args) = @_;
 
-    my $code = $cmd->get('code');
+    my $code = $self->get('code');
     my $reader = LineReader->new($code);
-    return $cmd->parse_some_lines($reader, $cmd, @args);
+    return $self->parse_some_lines($reader, $self, @args);
 }
 
 #-----------------------------------------------------------------------

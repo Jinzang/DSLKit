@@ -21,7 +21,7 @@ sub check {
 # Store the text of a macro
 
 sub interpret_some_lines {
-    my ($self, $reader, $context, $cmd, @args) = @_;
+    my ($self, $reader, $context, @args) = @_;
 
     $self->check(@args);
 
@@ -32,7 +32,7 @@ sub interpret_some_lines {
     my $parent = $self->{PARENT} || $self;
     my $obj = DSLMacro->new($parent, $name);
     $obj->set('code', \@lines);
-  
+
     return $self;
 }
 
@@ -55,4 +55,4 @@ MacroCommand -- Save a block of commands to be run later
 Macros create a new command that can be invoked later. The following lines, up
 to and including the end line, are saved under a new command name and may be
 invoked by the macro name. Macros can contain numbered variables, which are
-replaced by the corresponding argument passed on the command line. 
+replaced by the corresponding argument passed on the command line.

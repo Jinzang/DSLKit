@@ -7,6 +7,7 @@ use integer;
 
 package DSLCmd;
 
+use IO::File;
 use base qw(DSLVar);
 
 #-----------------------------------------------------------------------
@@ -26,9 +27,9 @@ sub interpret_some_lines {
 
 sub log {
     my ($self, @args) = @_;
-    
+
     my $msg;
-    foreach my $arg (@args) {        
+    foreach my $arg ($self, @args) {
         my $ref = ref $arg;
 
         if ($ref) {
@@ -53,7 +54,7 @@ sub log {
 
         $msg .= ' ';
     }
-    
+
     my $status = $self->status();
     $msg .= "($status)";
     $msg .= "\n";
@@ -62,12 +63,41 @@ sub log {
     return;
 }
 
+#----------------------------------------------------------------------
+# Run an external command, capture errors
+
+sub run_external {
+    my ($self, @args) = @_;
+
+    foreach (@args) {
+        $_ = "'$_'" if /\s/;
+    }
+
+    my $cmd = join (' ', @args) . " 2>&1";
+    my $log = "$cmd\n" . `$cmd`;
+
+    my $dbgfile = $self->get_var('Dbgfile');
+
+    if ($dbgfile) {
+        my $dbg = IO::File->new ($dbgfile, 'a');
+        print $dbg "\n=== ", scalar localtime, " ===\n";
+        print $dbg $log;
+        $dbg->close ();
+
+    } elsif ($?) {
+        my $error = $? >> 8;
+        die "$log\nExecution error: $error";
+    }
+
+    return;
+}
+
 #-----------------------------------------------------------------------
 # Check the status
 
 sub status {
     my ($self) = @_;
-    
+
     return scalar @{$self->get_value()};
 }
 
@@ -79,10 +109,10 @@ DSLCmd -- Base class for logged commands
 
 =head1 SYNOPSIS
 
-    my $obj = $obj->execute($obj, @args);
+    my $obj = $obj->execute(@args);
     my $value = $obj->run(@args);
     my $status = $obj->status();
-    
+
     # Script syntax
     # Initialize the state of the command
     new var $var
@@ -91,11 +121,11 @@ DSLCmd -- Base class for logged commands
     end
     # Run it and assign the result to another variable
     $result [$var arg1 arg2]
-    
+
 =head1 SYNOPSIS
 
 This class should be used as the base class for most single line commands.
-It writes a message to the log file with the command line and status after 
+It writes a message to the log file with the command line and status after
 a command is run. Unlike DSLVar, which always sets its status to 1, it sets its
 status to the number of results it generates. If there are no results, the
 containing method that invokes it will end early.
@@ -117,7 +147,7 @@ as the object's value.
 
 =head2 execute
 
-    $obj = $obj->execute($obj, @args);
+    $obj = $obj->execute(@args);
 
 Execute keeps the values passed on the command line as separate arguments
 instead of flattening them. It also expects the method to set its value to

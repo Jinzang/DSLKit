@@ -27,7 +27,7 @@ sub get_line {
 # Interpret lines read from the terminal
 
 sub interpret_some_lines {
-    my ($self, $reader, $context, $cmd, @args) = @_;
+    my ($self, $reader, $context, @args) = @_;
 
     $reader = InputReader->new();
     while (defined (my $line = $self->get_line($reader, $context))) {

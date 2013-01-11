@@ -70,13 +70,13 @@ my $one = DSLVar->new($top, 'one');
 my $two = DSLVar->new($top, 'two');
 $one->set_value(1);
 $ok = $one->get_value();
-$two->interpret_some_lines($lines, [], $two, $one);
+$two->interpret_some_lines($lines, [],  $one);
 $val = $two->get_value();
 is_deeply($val, $ok, "run with scalar value"); # test 17
 
 $one->set_value('one');
 $two->set_value('two');
-$two->interpret_some_lines($lines, [], $two, $one, $two);
+$two->interpret_some_lines($lines, [], $one, $two);
 $val = $two->get_value();
 is_deeply($val, ['one', 'two'], "run with multiple args"); # test 18
 

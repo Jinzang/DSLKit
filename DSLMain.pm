@@ -98,7 +98,7 @@ sub main {
     eval {
         $self->setup(@args);
         my $reader = $self->get_reader(@args);
-        $self->parse_some_lines($reader, @args);
+        $self->parse_some_lines($reader, $self, @args);
     };
 
     $self->error($@) if $@;

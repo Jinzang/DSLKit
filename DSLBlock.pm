@@ -20,14 +20,14 @@ sub get_line {
     do {
         $line = $reader->next_line();
         return unless defined $line;
-        
+
         my $comment;
         ($line, $comment) = split(/\#/, $line);
     } until $line =~ /\S/;
-    
+
     my ($new_line, $arg) = $self->next_arg($line, $context);
     return if $arg eq $self->terminator();
-        
+
     return $line;
 }
 
@@ -39,7 +39,7 @@ sub parse_some_lines {
 
     my %hash;
     my $name;
-    while (defined (my $line = $self->get_line($reader, \@context))) {       
+    while (defined (my $line = $self->get_line($reader, \@context))) {
         chomp $line;
 
         if ($line =~ /^\w+:/) {
@@ -54,7 +54,7 @@ sub parse_some_lines {
             $hash{$name} .= "\n$line";
         }
     }
-    
+
     return \%hash;
 }
 
@@ -67,9 +67,9 @@ sub read_some_lines {
     # One trick that makes this code work is that get_line does not
     # return the terminating line and this method appends it. This
     # prevents the terminating line from being interpreted.
-    
+
     my @lines;
-    while (defined (my $line = $self->get_line($reader, \@context))) {       
+    while (defined (my $line = $self->get_line($reader, \@context))) {
         push(@lines, $line);
     }
 
@@ -94,19 +94,19 @@ DSLBlock -- Base class for commands with multi-line data
 
 =head1 SYNOPSIS
 
-    my $obj = $obj->interpret_some_lines($reader, $context, $cmd, @args);
-    
+    my $obj = $obj->interpret_some_lines($reader, $context, @args);
+
     # Script syntax
     cmd $arg1 $arg2
     field1: value1
     field2: value2
     end
-    
+
 =head1 SYNOPSIS
 
 This class should be used as the base class for multiple line commands where the
 lines after the first contain data and not other commands. An example is
-NewCommand, which creates a variable and intitializes its state. 
+NewCommand, which creates a variable and intitializes its state.
 
 =head1 METHODS
 
@@ -115,7 +115,7 @@ support interpreting multiline commands.
 
 =head2 interpret_some_lines
 
-    $obj = $obj->interpret_some_lines($reader, $context, $cmd, @args);
+    $obj = $obj->interpret_some_lines($reader, $context, @args);
 
 This method is called after the command is parsed. The parsed line is placed
 into $cmd (the first argument) and @args (the reamining arguments). $context

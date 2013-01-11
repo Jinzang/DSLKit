@@ -20,7 +20,7 @@ sub main {
     my @lines = map {"$_\n"} split(/\n/, $code);
     my $reader = LineReader->new(\@lines);
 
-    return $self->parse_some_lines($reader, $code, @args);
+    return $self->parse_some_lines($reader, $self, @args);
 }
 
 1;

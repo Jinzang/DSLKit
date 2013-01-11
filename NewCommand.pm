@@ -25,7 +25,7 @@ sub check {
 # Create and set the state of a new variable
 
 sub interpret_some_lines {
-    my ($self, $lines, $context, $cmd, @args) = @_;
+    my ($self, $lines, $context, @args) = @_;
 
     $self->check(@args);
 
@@ -34,16 +34,16 @@ sub interpret_some_lines {
     my $name = $var->get_name();
     my $parent = $self->{PARENT} || $self;
     my $obj = $parent->get_pkg($kmd, $name);
-    
+
     my @lines = $self->read_some_lines($lines);
     my $reader = LineReader->new(\@lines);
-    
-    $obj->{STATE} = $self->parse_some_lines($reader, @args);
 
-    $obj->setup();    
+    $obj->{STATE} = $self->parse_some_lines($reader, $self, @args);
+
+    $obj->setup();
     my $setup = $parent->get('setup') || 0;
     $setup ++;
-    
+
     $parent->set('setup', $setup);
     $obj->{SETUP} = $setup;
 

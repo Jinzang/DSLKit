@@ -71,11 +71,11 @@ sub mail_message {
 # Write a log message
 
 sub execute {
-    my ($self, $cmd, @args) = @_;
+    my ($self, @args) = @_;
 
     my $i = 0;
     my $msg = '';
-    foreach my $arg (@args) {        
+    foreach my $arg (@args) {
         $msg .= ' ' if $i++;
 
         if (ref $arg) {
@@ -161,4 +161,3 @@ The subject line of the email message. The default value is "No Subject"
 A comma separated list of the people to email. The default value is 'nobody'.
 
 =back
-

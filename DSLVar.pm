@@ -49,7 +49,7 @@ sub clear_log {
 # Standard interface for executing commands
 
 sub execute {
-    my ($self, $cmd, @args) = @_;
+    my ($self, @args) = @_;
 
     @args = $self->flatten(@args);
     my $result = $self->run(@args);
@@ -218,16 +218,16 @@ sub interpret_a_line {
     die "Unmatched bracket: $line\n" if $line;
 
     my $obj = shift(@args);
-    return $obj->interpret_some_lines($reader, $context, $obj, @args);
+    return $obj->interpret_some_lines($reader, $context, @args);
 }
 
 #-----------------------------------------------------------------------
 # One line commands have nothing to do besides call execute
 
 sub interpret_some_lines {
-    my ($self, $reader, $context, $cmd, @args) = @_;
+    my ($self, $reader, $context, @args) = @_;
 
-    return $self->execute($cmd, @args);
+    return $self->execute(@args);
 }
 
 #-----------------------------------------------------------------------
@@ -243,7 +243,7 @@ sub next_arg {
             my @args;
             ($line, @args) = $self->parse_a_line($line, $context);
             my $obj = shift(@args);
-            $arg = $obj->interpret_some_lines([], $context, $obj, @args);
+            $arg = $obj->interpret_some_lines([], $context, @args);
 
         } elsif ($line =~ s/^\]//) {
             # End of bracketed expression: return
@@ -539,17 +539,16 @@ it, or the value of the variable if called with no arguments.
 
 =head2 execute
 
-    $var = $var->execute($cmd, @args);
+    $var = $var->execute(@args);
 
 The execute method sets the value of the variable to the concatenated values
-of the arguments. The first argument is a reference to the object itself and
-is not used. It returns the object which invokes it. Execute calls run after
+of the arguments. It returns the object which invokes it. Execute calls run after
 flattening the arguments it is called with into a single list. It should store
 the value returned by run in the VALUE field.
 
 =head2 interpret_some_lines
 
-    $var = $var->interpret_some_lines($reader, $context, $cmd, @args);
+    $var = $var->interpret_some_lines($reader, $context, @args);
 
 The most general way to invoke a variable is with this method. The first
 argument, $reader, is an object with a next_line method, which gets the next

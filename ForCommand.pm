@@ -10,7 +10,7 @@ use base qw(DSLCode);
 # Check arguments to run
 
 sub check {
-    my ($self, @args) = @_;  
+    my ($self, @args) = @_;
 
     die "No variable on for" unless @args && ref $args[0];
     return;
@@ -20,7 +20,7 @@ sub check {
 # Loop over block of lines
 
 sub interpret_some_lines {
-    my ($self, $reader, $context, $cmd, @args) = @_;
+    my ($self, $reader, $context, @args) = @_;
 
     my $var = shift @args;
     my @for_lines = $self->read_some_lines($reader, @$context);
@@ -74,4 +74,3 @@ loop variable will receive the value of the field.
 =head1 PARAMETERS
 
 This command does not use any parameters.
-

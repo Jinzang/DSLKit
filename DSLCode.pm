@@ -14,8 +14,8 @@ use base qw(DSLBlock);
 
 sub parse_some_lines {
     my ($self, $reader, @context) = @_;
-    
-    while (defined (my $line = $self->get_line($reader, \@context))) {       
+
+    while (defined (my $line = $self->get_line($reader, \@context))) {
         my $obj = $self->interpret_a_line($reader, $line, \@context);
 
         if ($obj->status() == 0) {
@@ -34,9 +34,9 @@ sub read_some_lines {
     my ($self, $reader, @context) = @_;
 
     my @lines;
-    while (defined (my $line = $self->get_line($reader, \@context))) {       
+    while (defined (my $line = $self->get_line($reader, \@context))) {
         push(@lines, $line);
-        
+
         my ($new_line, $cmd) = $self->next_arg($line, \@context);
         my $obj = $self->get_pkg($cmd);
 
@@ -57,14 +57,14 @@ DSLBlock -- Base class for commands with multi-line data
 
 =head1 SYNOPSIS
 
-    my $obj = $obj->interpret_some_lines($reader, $context, $cmd, @args);
-    
+    my $obj = $obj->interpret_some_lines($reader, $context, @args);
+
     # Script syntax
     cmd $arg1 $arg2
     subcmd1 arg1 arg2
     subcmd2 $arg3
     end
-    
+
 =head1 SYNOPSIS
 
 This class should be used as the base class for multiple line commands where the
@@ -79,7 +79,7 @@ All the methods of DSLBlock are supported, mostly with the same meaning.
 
 =head2 interpret_some_lines
 
-    $obj = $obj->interpret_some_lines($reader, $context, $cmd, @args);
+    $obj = $obj->interpret_some_lines($reader, $context, @args);
 
 This method is called after the command is parsed. The parsed line is placed
 into $cmd (the first argument) and @args (the reamining arguments). $context
