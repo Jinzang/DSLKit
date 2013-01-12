@@ -12,6 +12,30 @@ use base qw(DSLVar);
 use IO::File;
 use ExternalCommands;
 
+#-----------------------------------------------------------------------
+# Write a log message
+
+sub execute {
+    my ($self, @args) = @_;
+
+    my $i = 0;
+    my $msg = '';
+    foreach my $arg (@args) {
+        $msg .= ' ' if $i++;
+
+        if (ref $arg) {
+            $msg .= $arg->stringify($arg);
+        } else {
+            $msg .= $arg;
+        }
+    }
+
+    $self->put_log("$msg\n");
+    $self->set_value($msg);
+
+    return $self;
+}
+
 #----------------------------------------------------------------------
 # Generate mail header
 
@@ -40,9 +64,10 @@ sub mail_message {
 
     # Open filehandle for mail
 
-    my $mail;
-    my $mailcmd = MAIL_COMMAND;
-    $mail = IO::File->new( "|$mailcmd") if $mailcmd;;
+    my $mailcmd = get_external_command('sendmail');
+    return unless mail_test($mailcmd);
+    
+    my $mail = IO::File->new( "|$mailcmd");
 
     if ($mail) {
         my $header = $self->mail_header();
@@ -51,7 +76,6 @@ sub mail_message {
     } else {
         $mail = IO::File->new(">-");
     }
-
 
     print $mail $self->get_log();
 
@@ -68,27 +92,13 @@ sub mail_message {
 }
 
 #-----------------------------------------------------------------------
-# Write a log message
+# Test if mail command exists
 
-sub execute {
-    my ($self, @args) = @_;
-
-    my $i = 0;
-    my $msg = '';
-    foreach my $arg (@args) {
-        $msg .= ' ' if $i++;
-
-        if (ref $arg) {
-            $msg .= $arg->stringify($arg);
-        } else {
-            $msg .= $arg;
-        }
-    }
-
-    $self->put_log("$msg\n");
-    $self->set_value($msg);
-
-    return $self;
+sub mail_test {
+    my ($self, $command) = @_;
+    
+    my ($cmd) = split(' ', $command);
+    return -e $cmd;
 }
 
 #----------------------------------------------------------------------

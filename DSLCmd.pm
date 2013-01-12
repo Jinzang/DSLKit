@@ -63,35 +63,6 @@ sub log {
     return;
 }
 
-#----------------------------------------------------------------------
-# Run an external command, capture errors
-
-sub run_external {
-    my ($self, @args) = @_;
-
-    foreach (@args) {
-        $_ = "'$_'" if /\s/;
-    }
-
-    my $cmd = join (' ', @args) . " 2>&1";
-    my $log = "$cmd\n" . `$cmd`;
-
-    my $dbgfile = $self->get_var('Dbgfile');
-
-    if ($dbgfile) {
-        my $dbg = IO::File->new ($dbgfile, 'a');
-        print $dbg "\n=== ", scalar localtime, " ===\n";
-        print $dbg $log;
-        $dbg->close ();
-
-    } elsif ($?) {
-        my $error = $? >> 8;
-        die "$log\nExecution error: $error";
-    }
-
-    return;
-}
-
 #-----------------------------------------------------------------------
 # Check the status
 

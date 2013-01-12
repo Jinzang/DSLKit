@@ -116,7 +116,7 @@ sub setup {
     $self->set_script_status(1);
     $self->put_log("This script is $script_name\n") if $script_name;
 
-    my $cmd = NAME_COMMAND;
+    my $cmd = get_external_command('uname');
     my $uname = `$cmd`;
     chomp($uname);
 

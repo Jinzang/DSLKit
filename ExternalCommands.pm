@@ -9,23 +9,66 @@ package ExternalCommands;
 
 use Exporter;
 our @ISA = qw(Exporter);
-our @EXPORT = qw(CONVERT_COMMAND DVIPDF_COMMAND LATEX_COMMAND
-                 MAIL_COMMAND NAME_COMMAND);
+our @EXPORT = qw(get_external_command run_external_command);
 
-#use constant CONVERT_COMMAND => '/usr/bin/convert';
-use constant CONVERT_COMMAND => '/usr/local/bin/convert';
+our %command_list;
 
-#use constant DVIPDF_COMMAND => '/usr/bin/dvipdfm';
-use constant DVIPDF_COMMAND => '/usr/texbin/dvipdfm';
+use constant COMMAND_LIST => [
+                                '/usr/local/bin/convert',
+                                '/usr/texbin/dvipdfm',
+                                '/usr/lib/sendmail -oi -t',
+                                '/usr/texbin/latex',
+                                '/bin/uname -n',
+                              ];
 
-#use constant LATEX_COMMAND => '/usr/bin/latex';
-use constant LATEX_COMMAND => '/usr/texbin/latex';
+#----------------------------------------------------------------------
+# Run an external command, capture errors
 
-#use constant MAIL_COMMAND => '/usr/lib/sendmail -oi -t';
-use constant MAILCMD => '';
+sub get_external_command {
+    my ($cmd) = @_;
+    
+    initialize_external_command() unless %command_list;
+    $cmd = $command_list{$cmd} or die "Command not found: $cmd\n";
+    return $cmd;
+}
 
-use constant NAME_COMMAND => '/bin/uname -n';
-#use constant NAME_COMMAND => '/usr/bin/uname -n';
+#----------------------------------------------------------------------
+# Initialize the hash of commands
+
+sub initialize_external_command {
+
+    my $command_list = COMMAND_LIST;
+    foreach my $command (@$command_list) {
+        my ($path) = split(' ', $command);
+        my ($cmd) = $path =~ /([^\/]*)$/;
+        
+        $command_list{$cmd} = $command;
+    }
+    
+    return;
+}
+
+#----------------------------------------------------------------------
+# Run an external command, capture errors
+
+sub run_external_command {
+    my ($cmd, @args) = @_;
+
+    foreach (@args) {
+        $_ = "'$_'" if /\s/;
+    }
+
+    my $full_command = get_external_command($cmd);
+    my $command_line = join (' ', $full_command, @args, '2>&1');
+    my $log = "$command_line\n" . `$command_line`;
+
+    if ($?) {
+        my $error = $? >> 8;
+        die "$log\nExecution error: $error";
+    }
+
+    return;
+}
 
 1;
 __END__
@@ -35,5 +78,5 @@ Commands
 
 =head1 DESCRIPTION
 
-This package contains the constants for the paths of external commands, which
-may differ between systems.
+This class hides the different paths that Unix commands might have on different
+systems. Commands are fetched or run based only on the last part of their paths.
