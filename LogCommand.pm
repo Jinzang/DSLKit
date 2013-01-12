@@ -65,7 +65,7 @@ sub mail_message {
     # Open filehandle for mail
 
     my $mailcmd = get_external_command('sendmail');
-    return unless mail_test($mailcmd);
+    return unless $mailcmd;
     
     my $mail = IO::File->new( "|$mailcmd");
 
@@ -89,16 +89,6 @@ sub mail_message {
     }
 
     return;
-}
-
-#-----------------------------------------------------------------------
-# Test if mail command exists
-
-sub mail_test {
-    my ($self, $command) = @_;
-    
-    my ($cmd) = split(' ', $command);
-    return -e $cmd;
 }
 
 #----------------------------------------------------------------------

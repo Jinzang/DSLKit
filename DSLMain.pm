@@ -116,11 +116,16 @@ sub setup {
     $self->set_script_status(1);
     $self->put_log("This script is $script_name\n") if $script_name;
 
-    my $cmd = get_external_command('uname');
-    my $uname = `$cmd`;
-    chomp($uname);
+    my $text = 'Script was run at ' . localtime();
 
-    my $text = 'Script was run at ' . localtime() . " on $uname\n";
+    my $cmd = get_external_command('uname');
+    if ($cmd) {
+        my $uname = `$cmd`;
+        $text .= " on $uname";
+    } else {
+        $text .= "\n";
+    }
+    
     $self->put_log($text);
 
     return;
