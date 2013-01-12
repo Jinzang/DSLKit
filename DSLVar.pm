@@ -31,7 +31,7 @@ sub new {
 
 sub check {
     my ($self, @args) = @_;
-    return;
+    return $self->flatten(@args);
 }
 
 #-----------------------------------------------------------------------
@@ -51,7 +51,7 @@ sub clear_log {
 sub execute {
     my ($self, @args) = @_;
 
-    @args = $self->flatten(@args);
+    @args = $self->check(@args);
     my $result = $self->run(@args);
     $self->set_value($result);
 
