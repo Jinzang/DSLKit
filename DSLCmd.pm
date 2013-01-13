@@ -11,6 +11,57 @@ use IO::File;
 use base qw(DSLVar);
 
 #-----------------------------------------------------------------------
+# Check for hash argument
+
+sub check_hash_arg {
+    my ($self, $arg) = @_;
+
+    return unless defined $arg;
+    return unless ref $arg;
+    
+    my $value = $arg->get_value();
+    return if @$value && ref $value->[0] ne 'HASH';
+
+    return $value;
+}
+
+#-----------------------------------------------------------------------
+# Check for list argument
+
+sub check_list_arg {
+    my ($self, $arg) = @_;
+
+    return unless defined $arg;
+    return unless ref $arg;
+    
+    my $value = $arg->get_value();
+    return if @$value && ref $value->[0];
+
+    return $value;
+}
+
+#-----------------------------------------------------------------------
+# Check for string argument
+
+sub check_string_arg {
+    my ($self, $arg) = @_;
+
+    return unless defined $arg;
+    
+    my $value;
+    if (ref $arg) {
+        my $list = $arg->get_value();
+        return unless @$list == 1;
+        $value = $list->[0];
+
+    } else {
+        $value = $arg;
+    }
+    
+    return $value;
+}
+
+#-----------------------------------------------------------------------
 # Interperet the command and log the results
 
 sub interpret_some_lines {
@@ -102,15 +153,13 @@ containing method that invokes it will end early.
 
 =head1 METHODS
 
-All the methods of DSLVar are supported and there are no new methods. But any
-single line methods subclassing it should implement the following
-methods, but not both.
+The class supports all the methods of DSLVar, which are defined there. It also
+supports three helper methods for check
 
-=head2 run
-
-    $value = $obj->run(@args);
-
-Run is the simpler of the two methods. The values of all of the script
-arguments are flattened into a single list. The run method should return its
-result either as a scalar or a reference to an array. This result will be saved
-as the object's value.
+    $value = $self->check_hash_arg($arg);
+    $value = $self->check_list_arg($arg);
+    $value = $self->check_string_arg($arg);
+    
+These methods check a command line argument to see if it has the correct type.
+If it does, it unmarshalls the data contained in the argument. If not, it
+returns undef.
