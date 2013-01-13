@@ -71,7 +71,7 @@ This class should be used as the base class for multiple line commands where the
 lines after the first contains other commands. The can be recursive. Some of
 these lines may also be multi-line commands. Two examples of classes based on
 this class are ForCommand, which loops over a set of lines, and MacroCommand,
-which saves a set of lines in a variable to be executed later.
+which saves a set of lines in a variable to be run later.
 
 =head1 METHODS
 

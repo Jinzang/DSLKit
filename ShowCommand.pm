@@ -10,25 +10,29 @@ package ShowCommand;
 use base qw(DSLVar);
 
 #-----------------------------------------------------------------------
-# Show one level of the contents of a variable
+# Parse the arguments passed to this command
 
-sub execute {
-    my ($self, @args) = @_;
+sub check {
+    my ($self, $var, @fields) = @_;
 
-    my ($var, @fields) = $self->parse_args(@args);
-    my $data = $self->find_data($var, @fields);
+    if (! defined $var) {
+        $var = $self->get_top();
 
-    my $values;
-    if (defined $data) {
-        my $name = $var->get_name();
-        $self->set('var', $name);
-        $self->set('fields', \@fields);
+    } elsif (! ref $var) {
+        if ($var eq '^') {
+            my $name = $self->get('name');
+            $var = defined $name ? $self->get_var($name) : $self->get_top();
 
-        $values = $self->get_data($data);
+            my $old_fields = $self->get('fields');
+            unshift(@fields, @$old_fields) if defined $old_fields;
+
+        } else {
+            unshift(@fields, $var);
+            $var = $self->get_top();
+        }
     }
 
-    $self->set_value($values);
-    return $self;
+    return ($var, @fields);
 }
 
 #-----------------------------------------------------------------------
@@ -81,29 +85,23 @@ sub get_data {
 }
 
 #-----------------------------------------------------------------------
-# Parse the arguments passed to this command
+# Show one level of the contents of a variable
 
-sub parse_args {
+sub run {
     my ($self, $var, @fields) = @_;
 
-    if (! defined $var) {
-        $var = $self->get_top();
+    my $data = $self->find_data($var, @fields);
 
-    } elsif (! ref $var) {
-        if ($var eq '^') {
-            my $name = $self->get('name');
-            $var = defined $name ? $self->get_var($name) : $self->get_top();
+    my $values;
+    if (defined $data) {
+        my $name = $var->get_name();
+        $self->set('var', $name);
+        $self->set('fields', \@fields);
 
-            my $old_fields = $self->get('fields');
-            unshift(@fields, @$old_fields) if defined $old_fields;
-
-        } else {
-            unshift(@fields, $var);
-            $var = $self->get_top();
-        }
+        $values = $self->get_data($data);
     }
 
-    return ($var, @fields);
+    return $values;
 }
 
 1;

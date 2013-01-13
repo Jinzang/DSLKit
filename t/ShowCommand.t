@@ -20,20 +20,20 @@ my $a = DSLVar->new($show, 'a');
 #----------------------------------------------------------------------
 # Test parsing
 
-my ($var, @fields) = $show->parse_args();
+my ($var, @fields) = $show->check();
 is($var, $show, "Parse var with no args"); # test 3
 is_deeply(\@fields, [], "Parse fields with no args"); # test 4
 
-($var, @fields) = $show->parse_args('STATE');
+($var, @fields) = $show->check('STATE');
 is($var, $show, "Parse var with no var"); # test 5
 is_deeply(\@fields, ['STATE'], "Parse fields with no var"); # test 6
 
 $show->set('fields', ['SETUP']);
-($var, @fields) = $show->parse_args('^');
+($var, @fields) = $show->check('^');
 is($var, $show, "Parse var with caret"); # test 7
 is_deeply(\@fields, ['SETUP'], "Parse fields with caret"); # test 8
 
-($var, @fields) = $show->parse_args($a, 'PARENT');
+($var, @fields) = $show->check($a, 'PARENT');
 is($var, $a, "Parse var with variable"); # test 9
 is_deeply(\@fields, ['PARENT'], "Parse fields with variable"); # test 10
 
@@ -60,7 +60,7 @@ $value = $show->get_data($show);
 is_deeply($value, [qw(SETUP STATE VALUE)], "Get hash data"); # test 15
 
 #----------------------------------------------------------------------
-# Execute
+# Run
 
 my $code = <<'EOQ';
 $a 1 2
@@ -70,4 +70,4 @@ EOQ
 my $mock = DSLMock->main($code);
 my $b = $mock->get_var('b');
 $value = $b->get_value();
-is_deeply($value, [2], "Execute"); # test 16
+is_deeply($value, [2], "Run"); # test 16

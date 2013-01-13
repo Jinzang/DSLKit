@@ -68,7 +68,7 @@ loop.
 
 =item fields
 
-One or more arguments. The loop will be executed once for each field and the
+One or more arguments. The loop will be run once for each field and the
 loop variable will receive the value of the field.
 
 =head1 PARAMETERS

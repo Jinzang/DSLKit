@@ -13,27 +13,21 @@ use IO::File;
 use ExternalCommands;
 
 #-----------------------------------------------------------------------
-# Write a log message
+# Check and convert arguments
 
-sub execute {
+sub check {
     my ($self, @args) = @_;
 
-    my $i = 0;
-    my $msg = '';
+    my @new_args;
     foreach my $arg (@args) {
-        $msg .= ' ' if $i++;
-
         if (ref $arg) {
-            $msg .= $arg->stringify($arg);
+            push(@new_args, $arg->stringify($arg));
         } else {
-            $msg .= $arg;
+            push(@new_args, $arg);
         }
     }
 
-    $self->put_log("$msg\n");
-    $self->set_value($msg);
-
-    return $self;
+    return @new_args;
 }
 
 #----------------------------------------------------------------------
@@ -89,6 +83,18 @@ sub mail_message {
     }
 
     return;
+}
+
+#-----------------------------------------------------------------------
+# Write a log message
+
+sub run {
+    my ($self, @args) = @_;
+
+    my $msg = join(' ', @args);
+    $self->put_log("$msg\n");
+
+    return $msg;
 }
 
 #----------------------------------------------------------------------

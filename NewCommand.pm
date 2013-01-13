@@ -78,7 +78,7 @@ The command takes two arguments:
 =item command
 
 The type of the variable to be initialized. Each variable is associated with
-a command, which is run when the variable is executed.
+a command, which is run when the variable is at the start of the line.
 
 =item $var
 

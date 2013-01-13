@@ -14,9 +14,9 @@ use base qw(DSLVar);
 # Interperet the command and log the results
 
 sub interpret_some_lines {
-    my ($self, $lines, $context, @args) = @_;
+    my ($self, $reader, $context, @args) = @_;
 
-    $self->execute(@args);
+    $self->SUPER::interpret_some_lines($reader, $context, @args);
     $self->log(@args);
 
     return $self;
@@ -80,7 +80,6 @@ DSLCmd -- Base class for logged commands
 
 =head1 SYNOPSIS
 
-    my $obj = $obj->execute(@args);
     my $value = $obj->run(@args);
     my $status = $obj->status();
 
@@ -104,7 +103,7 @@ containing method that invokes it will end early.
 =head1 METHODS
 
 All the methods of DSLVar are supported and there are no new methods. But any
-single line methods subclassing it should implement one of thetwo following
+single line methods subclassing it should implement the following
 methods, but not both.
 
 =head2 run
@@ -115,11 +114,3 @@ Run is the simpler of the two methods. The values of all of the script
 arguments are flattened into a single list. The run method should return its
 result either as a scalar or a reference to an array. This result will be saved
 as the object's value.
-
-=head2 execute
-
-    $obj = $obj->execute(@args);
-
-Execute keeps the values passed on the command line as separate arguments
-instead of flattening them. It also expects the method to set its value to
-the result.

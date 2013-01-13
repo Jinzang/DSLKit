@@ -46,19 +46,6 @@ sub clear_log {
 }
 
 #-----------------------------------------------------------------------
-# Standard interface for executing commands
-
-sub execute {
-    my ($self, @args) = @_;
-
-    @args = $self->check(@args);
-    my $result = $self->run(@args);
-    $self->set_value($result);
-
-    return $self;
-}
-
-#-----------------------------------------------------------------------
 # Convert a list of arrays to one long array
 
 sub flatten {
@@ -222,12 +209,16 @@ sub interpret_a_line {
 }
 
 #-----------------------------------------------------------------------
-# One line commands have nothing to do besides call execute
+# Set up one line command to call run
 
 sub interpret_some_lines {
     my ($self, $reader, $context, @args) = @_;
 
-    return $self->execute(@args);
+    @args = $self->check(@args);
+    my $result = $self->run(@args);
+    $self->set_value($result);
+
+    return $self;
 }
 
 #-----------------------------------------------------------------------
@@ -530,21 +521,19 @@ it creates an anonymous variable.
 When subclassing, you will overload one of the following three methods,
 depending on how much control you need.
 
+=head2 check
+
+    @new_args = $var->check(@args);
+
+Check unmarsalls the data from the arguments passed to a command and checks that
+they are the correct number and type.
+
 =head2 run
 
     my $value = $var->run(@args);
 
 The run method returns a list containing the values of the arguments passed to
 it, or the value of the variable if called with no arguments.
-
-=head2 execute
-
-    $var = $var->execute(@args);
-
-The execute method sets the value of the variable to the concatenated values
-of the arguments. It returns the object which invokes it. Execute calls run after
-flattening the arguments it is called with into a single list. It should store
-the value returned by run in the VALUE field.
 
 =head2 interpret_some_lines
 
@@ -554,7 +543,7 @@ The most general way to invoke a variable is with this method. The first
 argument, $reader, is an object with a next_line method, which gets the next
 line of the script. Context is a reference to the argument list that the
 containing object was invoked with. The remaining arguments are the same as
-those of run and execute.
+those of run.
 
 This method would be used by classes subclassing DSLVar if they have multiple
 lines or need to use the arguments of the object invoking it.
