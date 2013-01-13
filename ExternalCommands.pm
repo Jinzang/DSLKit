@@ -28,7 +28,7 @@ sub get_external_command {
     my $command = $command_list{$cmd};
 
     die "Command not found: $cmd\n" unless defined $command;
-    return $cmd;
+    return $command;
 }
 
 #----------------------------------------------------------------------
@@ -62,14 +62,14 @@ sub run_external_command {
     die "Command not found: $cmd\n" unless $full_command;
     
     my $command_line = join (' ', $full_command, @args, '2>&1');
-    my $log = "$command_line\n" . `$command_line`;
+    my $result = `$command_line`;
 
     if ($?) {
         my $error = $? >> 8;
-        die "$log\nExecution error: $error";
+        die "$command_line\n$result\nExecution error: $error";
     }
 
-    return;
+    return $result;
 }
 
 1;
