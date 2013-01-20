@@ -226,7 +226,6 @@ sub next_arg {
             # Bracketed expression, replace with interpreted result
             my $subline;
             ($subline, $line) = $self->subline($line);
-
             my $reader = LineReader->new([]);
             $arg = $self->interpret_a_line($reader, $subline, $context);
 

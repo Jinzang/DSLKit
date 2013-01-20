@@ -5,7 +5,7 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/..";
 
-use Test::More tests => 35;
+use Test::More tests => 37;
 
 BEGIN {use_ok("DSLVar");} # test 1
 
@@ -99,46 +99,50 @@ $context = ['foo', $obj];
 $test = $top->get_string_value('1', $context);
 is($test, 'test', "Interpolate numbered variable"); # test 22
 
+my ($first, $rest) = $top->subline('[the [first][second] third]word');
+is($first, 'the [first][second] third', "extract subline"); # test 23
+is($rest, 'word', "remaining subline"); # test 24
+
 $context = [];
 my ($line, $arg) = $top->next_arg("\n", $context);
-is($line, '', "Parse empty line"); # test 23
-is($arg, undef, "Parse no argument"); # test 24
+is($line, '', "Parse empty line"); # test 24
+is($arg, undef, "Parse no argument"); # test 25
 
 ($line, $arg) = $top->next_arg('"don\'t care"', $context);
-is($arg, 'don\'t care', "Parse simple double quoted string"); # test 25
+is($arg, 'don\'t care', "Parse simple double quoted string"); # test 26
 
 ($line, $arg) = $top->next_arg("'don\\'t care'", $context);
-is($arg, 'don\'t care', "Single quoted string with escape"); # test 26
+is($arg, 'don\'t care', "Single quoted string with escape"); # test 27
 
 ($line, $arg) = $top->next_arg("\"\\\$ok\"", $context);
-is($arg, '$ok',"Double quoted string with escape"); # test 27
+is($arg, '$ok',"Double quoted string with escape"); # test 28
 
 $context = ['mock', 'bar'];
 ($line, $arg) = $top->next_arg("\"foo\$1\"", $context);
-is($arg, 'foobar', "Double quoted string with context variable"); # test 28
+is($arg, 'foobar', "Double quoted string with context variable"); # test 29
 
 ($line, $arg) = $top->next_arg("\"fair \$ok\"", $context);
-is($arg, 'fair test', "Double quoted string with named variable"); # test 29
+is($arg, 'fair test', "Double quoted string with named variable"); # test 30
 
 my @args;
 my $mock = DSLVar->new($top, 'mock');
 ($line, @args) = $top->parse_a_line("\$mock one two three\n", $context);
-is($line, '', "Completely parse simple line"); # test 30
+is($line, '', "Completely parse simple line"); # test 31
 is_deeply(\@args, [$mock, 'one', 'two', 'three'],
-          "Parse simple strings"); # test 29
+          "Parse simple strings"); # test 32
 
 ($line, @args) = $top->parse_a_line("\$mock 'one two' three\n", $context);
 is_deeply(\@args, [$mock, 'one two', 'three'],
-          "Parse simple single quoted string"); # test 32
+          "Parse simple single quoted string"); # test 33
 
 ($line, @args) = $top->parse_a_line("\$mock \$*\n", $context);
 $val = $args[1]->get_value();
-is_deeply($val, ['bar'], "Parse starred variable"); # test 33
+is_deeply($val, ['bar'], "Parse starred variable"); # test 34
 
 ($line, @args) = $top->parse_a_line("\$mock \$1\n", $context);
-is_deeply(\@args, [$mock, 'bar'], "Parse numbered variable"); # test 34
+is_deeply(\@args, [$mock, 'bar'], "Parse numbered variable"); # test 35
 
 my $a = DSLVar->new($top,'a');
 my $b = DSLVar->new($top, 'b');
 ($line, @args) = $top->parse_a_line('$a [$b 3]', $context);
-is_deeply(\@args, [$a, $b], "Parse bracketed expression"); # test 35
+is_deeply(\@args, [$a, $b], "Parse bracketed expression"); # test 36
