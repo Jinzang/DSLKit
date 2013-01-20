@@ -13,8 +13,11 @@ use DSLMacro;
 sub check {
 	my ($self, @args) = @_;
 
-    die "No variable passed to macro\n" unless @args && ref $args[0];
-	return;
+    my $var = shift(@args);
+    die "No variable passed to macro\n" unless defined $var && ref $var;
+    die "Macro command only takes one argument\n" if @args;
+    
+	return $var;
 }
 
 #----------------------------------------------------------------------
@@ -23,9 +26,7 @@ sub check {
 sub interpret_some_lines {
     my ($self, $reader, $context, @args) = @_;
 
-    $self->check(@args);
-
-    my $var = shift(@args);
+    my $var = $self->check(@args);
     my $name = $var->get_name();
 
     my @lines = $self->read_some_lines($reader);

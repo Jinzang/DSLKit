@@ -91,7 +91,7 @@ sub mail_message {
 sub run {
     my ($self, @args) = @_;
 
-    my $msg = join(' ', @args);
+    my $msg = join(' ', $self->check(@args));
     $self->put_log("$msg\n");
 
     return $msg;

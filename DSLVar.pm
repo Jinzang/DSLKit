@@ -187,14 +187,6 @@ sub get_var {
 }
 
 #-----------------------------------------------------------------------
-# Get a string value if it is a string
-
-sub if_string {
-    my ($self) = @_;
-
-}
-
-#-----------------------------------------------------------------------
 # Interpret a line containing a command
 
 sub interpret_a_line {

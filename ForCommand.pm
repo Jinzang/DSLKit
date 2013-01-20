@@ -12,8 +12,11 @@ use base qw(DSLCode);
 sub check {
     my ($self, @args) = @_;
 
-    die "No variable on for" unless @args && ref $args[0];
-    return;
+    my $var = shift @args;
+    die "No variable on for" unless defined $var && ref $var;
+    
+    @args = $self->flatten(@args);
+    return ($var, @args);
 }
 
 #----------------------------------------------------------------------
@@ -22,11 +25,12 @@ sub check {
 sub interpret_some_lines {
     my ($self, $reader, $context, @args) = @_;
 
-    my $var = shift @args;
+    my $var;
+    ($var, @args) = $self->check(@args);
     my @for_lines = $self->read_some_lines($reader, @$context);
 
     my @result;
-    foreach my $arg ($self->flatten(@args)) {
+    foreach my $arg (@args) {
         $var->set_value($arg);
 
         my $reader = LineReader->new(\@for_lines);

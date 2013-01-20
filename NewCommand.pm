@@ -13,12 +13,16 @@ use base qw(DSLBlock);
 # Check arguments to new
 
 sub check {
-    my ($self, $cmd, $var) = @_;
+    my ($self, @args) = @_;
 
+    my $cmd = shift @args;
     die "No command name for new\n" unless defined $cmd && ! ref $cmd;
+    
+    my $var = shift @args;
     die "No variable for new\n" unless defined $var && ref $var;
 
-    return;
+    die "The new command takes two arguments\n" if @args;   
+    return ($cmd, $var);
 }
 
 #-------- ---------------------------------------------------------------
@@ -27,13 +31,11 @@ sub check {
 sub interpret_some_lines {
     my ($self, $lines, $context, @args) = @_;
 
-    $self->check(@args);
+    my ($cmd, $var) = $self->check(@args);
 
-    my $kmd = shift(@args);
-    my $var = shift(@args);
     my $name = $var->get_name();
     my $parent = $self->{PARENT} || $self;
-    my $obj = $parent->get_pkg($kmd, $name);
+    my $obj = $parent->get_pkg($cmd, $name);
 
     my @lines = $self->read_some_lines($lines);
     my $reader = LineReader->new(\@lines);
