@@ -6,6 +6,7 @@ use integer;
 # Base code for witing a Domain Specific Language
 
 package DSLVar;
+use LineReader;
 
 #-----------------------------------------------------------------------
 # Create a new object
@@ -221,16 +222,13 @@ sub next_arg {
 
     my $arg;
     while (! defined $arg) {
-        if ($line =~ s/^\[//) {
-            # Start of bracketed expression: collect args and interpret
-            my @args;
-            ($line, @args) = $self->parse_a_line($line, $context);
-            my $obj = shift(@args);
-            $arg = $obj->interpret_some_lines([], $context, @args);
+        if ($line =~ /^\[/) {
+            # Bracketed expression, replace with interpreted result
+            my $subline;
+            ($subline, $line) = $self->subline($line);
 
-        } elsif ($line =~ s/^\]//) {
-            # End of bracketed expression: return
-            last;
+            my $reader = LineReader->new([]);
+            $arg = $self->interpret_a_line($reader, $subline, $context);
 
         } elsif ($line =~ s/^\$\*//) {
             # Star variable, replace with context
@@ -411,6 +409,37 @@ sub stringify {
     $val = $self->to_string($val);
 
     return $val;
+}
+
+#-----------------------------------------------------------------------
+# Extract a bracket delimeted subline from a line
+
+sub subline {
+    my ($self, $line) = @_;
+
+    my $pos = 1;
+    my $depth = 1;
+    while ($depth > 0) {
+        my $lpos = index($line, '[', $pos) + 1;
+        my $rpos = index($line, ']', $pos) + 1;
+
+        if ($lpos && ($rpos == 0 || $lpos < $rpos)) {
+            $pos = $lpos;
+            $depth ++;
+
+        } elsif ($rpos && ($lpos == 0 || $rpos < $lpos)) {
+            $pos = $rpos;
+            $depth --;
+
+        } else {
+            die "Unbalaced brackets on line: $line";
+        }
+    }
+    
+    my $subline = substr($line, 1, $pos-2);
+    $line = substr($line, $pos);
+    
+    return ($subline, $line);    
 }
 
 #-----------------------------------------------------------------------
