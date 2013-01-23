@@ -7,14 +7,16 @@ use integer;
 
 package ScriptReader;
 
+use IO::File;
+
 #-----------------------------------------------------------------------
 # Create a new object
 
 sub new {
     my ($pkg, $script) = @_;
     die "No script name\n" unless defined $script;
-    
-    my $self = {};  
+
+    my $self = {};
     $self->{fd} = IO::File->new($script, 'r');
     die "Couldn't read $script" unless $self->{fd};
 
