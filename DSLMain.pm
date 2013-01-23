@@ -125,8 +125,9 @@ sub setup {
     } else {
         $text .= "\n";
     }
-    
+
     $self->put_log($text);
+    $self->create_stage_dir();
 
     return;
 }
@@ -138,7 +139,8 @@ sub teardown {
     my ($self) = @_;
 
     my $state = $self->{STATE};
-    my @names = sort {$state->{$b}{SETUP} <=> $state->{$a}{SETUP}} keys %$state;
+    my @names = grep {ref $state->{$_}} keys %$state;
+    @names = sort {$state->{$b}{SETUP} <=> $state->{$a}{SETUP}} @names;
 
     foreach my $name (@names) {
         my $obj = $self->get($name);
