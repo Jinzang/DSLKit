@@ -188,6 +188,16 @@ sub get_var {
 }
 
 #-----------------------------------------------------------------------
+# Get the current setup count and increment it
+
+sub increment_setup {
+    my ($self) = @_;
+
+    my $top = $self->get_top();
+    return ++ $top->{SETUP};
+}
+
+#-----------------------------------------------------------------------
 # Interpret a line containing a command
 
 sub interpret_a_line {
@@ -434,11 +444,11 @@ sub subline {
             die "Unbalaced brackets on line: $line";
         }
     }
-    
+
     my $subline = substr($line, 1, $pos-2);
     $line = substr($line, $pos);
-    
-    return ($subline, $line);    
+
+    return ($subline, $line);
 }
 
 #-----------------------------------------------------------------------

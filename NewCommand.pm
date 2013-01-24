@@ -17,11 +17,11 @@ sub check {
 
     my $cmd = shift @args;
     die "No command name for new\n" unless defined $cmd && ! ref $cmd;
-    
+
     my $var = shift @args;
     die "No variable for new\n" unless defined $var && ref $var;
 
-    die "The new command takes two arguments\n" if @args;   
+    die "The new command takes two arguments\n" if @args;
     return ($cmd, $var);
 }
 
@@ -43,11 +43,7 @@ sub interpret_some_lines {
     $obj->{STATE} = $self->parse_some_lines($reader, $self, @args);
 
     $obj->setup();
-    my $setup = $parent->get('setup') || 0;
-    $setup ++;
-
-    $parent->set('setup', $setup);
-    $obj->{SETUP} = $setup;
+    $obj->{SETUP} = $self->increment_setup();
 
     return $self;
 }
