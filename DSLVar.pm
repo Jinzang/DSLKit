@@ -203,11 +203,7 @@ sub increment_setup {
 sub interpret_a_line {
     my ($self, $reader, $line, $context) = @_;
 
-    my @args;
-    ($line, @args) = $self->parse_a_line($line, $context);
-    die "Unmatched bracket: $line\n" if $line;
-
-    my $obj = shift(@args);
+    my ($obj, @args) = $self->parse_a_line($line, $context);
     return $obj->interpret_some_lines($reader, $context, @args);
 }
 
@@ -308,7 +304,7 @@ sub parse_a_line {
         push(@args, $arg);
     }
 
-    return ($line, @args);
+    return @args;
 }
 
 #-----------------------------------------------------------------------

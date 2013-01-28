@@ -126,23 +126,23 @@ is($arg, 'fair test', "Double quoted string with named variable"); # test 30
 
 my @args;
 my $mock = DSLVar->new($top, 'mock');
-($line, @args) = $top->parse_a_line("\$mock one two three\n", $context);
+@args = $top->parse_a_line("\$mock one two three\n", $context);
 is($line, '', "Completely parse simple line"); # test 31
 is_deeply(\@args, [$mock, 'one', 'two', 'three'],
           "Parse simple strings"); # test 32
 
-($line, @args) = $top->parse_a_line("\$mock 'one two' three\n", $context);
+@args = $top->parse_a_line("\$mock 'one two' three\n", $context);
 is_deeply(\@args, [$mock, 'one two', 'three'],
           "Parse simple single quoted string"); # test 33
 
-($line, @args) = $top->parse_a_line("\$mock \$*\n", $context);
+@args = $top->parse_a_line("\$mock \$*\n", $context);
 $val = $args[1]->get_value();
 is_deeply($val, ['bar'], "Parse starred variable"); # test 34
 
-($line, @args) = $top->parse_a_line("\$mock \$1\n", $context);
+@args = $top->parse_a_line("\$mock \$1\n", $context);
 is_deeply(\@args, [$mock, 'bar'], "Parse numbered variable"); # test 35
 
 my $a = DSLVar->new($top,'a');
 my $b = DSLVar->new($top, 'b');
-($line, @args) = $top->parse_a_line('$a [$b 3]', $context);
+@args = $top->parse_a_line('$a [$b 3]', $context);
 is_deeply(\@args, [$a, $b], "Parse bracketed expression"); # test 36
