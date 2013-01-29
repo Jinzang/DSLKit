@@ -59,11 +59,23 @@ is($val, undef, "Non-existent var"); # test 14
 
 $obj->set_value(['one', 'two']);
 my $test = $obj->stringify();
-is($test, "one\ntwo", "Stringify list variable"); # test 15
+my $test_ok = <<'EOQ';
+        'one',
+        'two'
+EOQ
+chomp$test_ok;
+is($test, $test_ok, "Stringify list variable"); # test 15
 
 $obj->set_value({'one' => 1, 'two' => 2});
 $test = $obj->stringify();
-is($test, "one: 1 two: 2", "Stringify hash variable"); # test 16
+$test_ok = <<'EOQ';
+        {
+          'one' => 1,
+          'two' => 2
+        }
+EOQ
+chomp $test_ok;
+is($test, $test_ok, "Stringify hash variable"); # test 16
 
 my $lines = [];
 my $one = DSLVar->new($top, 'one');

@@ -24,10 +24,13 @@ EOQ
 
 my $block = DSLMock->main($source);
 my $msg = $block->get_log();
-my @msg = split(/\n/, $msg);
-
-my $msg_ok = ["one", "two", "three", "four"];
-is_deeply(\@msg, $msg_ok, "Single loop"); # test 2
+my $msg_ok = <<'EOQ';
+       'one'
+       'two'
+       'three'
+       'four'
+EOQ
+is($msg, $msg_ok, "Single loop"); # test 2
 
 $source = <<'EOQ';
 for $i red blue
@@ -40,10 +43,13 @@ EOQ
 
 $block = DSLMock->main($source);
 $msg = $block->get_log();
-@msg = split(/\n/, $msg);
-
-$msg_ok = ["red car", "red boat", "blue car", "blue boat"];
-is_deeply(\@msg, $msg_ok, "Double loop"); # test 3
+$msg_ok = <<'EOQ';
+       'red'        'car'
+       'red'        'boat'
+       'blue'        'car'
+       'blue'        'boat'
+EOQ
+is($msg, $msg_ok, "Double loop"); # test 3
 
 $source = <<'EOQ';
 for $i red blue
@@ -55,7 +61,10 @@ EOQ
 
 $block = DSLMock->main($source, 'big');
 $msg = $block->get_log();
-@msg = split(/\n/, $msg);
-
-$msg_ok = ["big red car", "big red boat", "big blue car", "big blue boat"];
-is_deeply(\@msg, $msg_ok, "Double loop with varuable"); # test 4
+$msg_ok = <<'EOQ';
+big        'red'        'car'
+big        'red'        'boat'
+big        'blue'        'car'
+big        'blue'        'boat'
+EOQ
+is($msg, $msg_ok, "Double loop with varuable"); # test 4

@@ -7,6 +7,7 @@ use integer;
 
 package DSLVar;
 use LineReader;
+use Data::Dumper;
 
 #-----------------------------------------------------------------------
 # Create a new object
@@ -410,10 +411,15 @@ sub status {
 sub stringify {
     my ($self) = @_;
 
-    my $val = $self->get_value();
-    $val = $self->to_string($val);
+    my $name = $self->get_name() || 'var';
+    my $value = $self->get_value();
 
-    return $val;
+    my $dumper = Data::Dumper->new([$value], [$name]);
+    my @output = split(/\n/, $dumper->Dump());
+
+    shift(@output);
+    pop(@output);
+    return join("\n", @output);
 }
 
 #-----------------------------------------------------------------------
@@ -461,37 +467,6 @@ sub teardown {
 sub terminator {
     my ($self) = @_;
     return;
-}
-
-#-----------------------------------------------------------------------
-# Convert an element of a value to a string
-
-sub to_string {
-    my ($self, $val) = @_;
-
-    my $str;
-    my $ref = ref $val;
-
-    if ($ref eq 'ARRAY') {
-        $str = '';
-        foreach my $subval (@$val) {
-            $str .= "\n" if $str;
-            $str .= ref $subval eq 'ARRAY' ? '...' : $self->to_string($subval);
-        }
-
-    } elsif ($ref eq 'HASH') {
-        $str = '';
-        foreach my $key (sort keys %$val) {
-            $str .= ' ' if $str;
-            $str .= "$key: ";
-            $str .=  ref $val->{$key} ? '...' : $val->{$key};
-        }
-
-    } else {
-        $str = "$val";
-    }
-
-    return $str;
 }
 
 1;
