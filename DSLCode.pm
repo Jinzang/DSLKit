@@ -10,6 +10,24 @@ package DSLCode;
 use base qw(DSLBlock);
 
 #-----------------------------------------------------------------------
+# Get the next input line
+
+sub get_line {
+    my ($self, $reader, $context) = @_;
+
+    my $line;
+    do {
+        $line = $self->SUPER::get_line($reader, $context);
+        return unless defined $line;
+
+        my $comment;
+        ($line, $comment) = split(/\#/, $line);
+    } until $line =~ /\S/;
+
+    return $line;
+}
+
+#-----------------------------------------------------------------------
 # Parse a set of lines
 
 sub parse_some_lines {

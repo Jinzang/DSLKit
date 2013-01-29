@@ -16,14 +16,8 @@ use constant DEFAULT_TERMINATOR => 'end';
 sub get_line {
     my ($self, $reader, $context) = @_;
 
-    my $line;
-    do {
-        $line = $reader->next_line();
-        return unless defined $line;
-
-        my $comment;
-        ($line, $comment) = split(/\#/, $line);
-    } until $line =~ /\S/;
+    my $line = $reader->next_line();
+    return unless defined $line;
 
     my ($new_line, $arg) = $self->next_arg($line, $context);
     return if $arg eq $self->terminator();
