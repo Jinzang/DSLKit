@@ -20,7 +20,7 @@ sub get_line {
     return unless defined $line;
 
     my ($new_line, $arg) = $self->next_arg($line, $context);
-    return if $arg eq $self->terminator();
+    return if defined $arg && $arg eq $self->terminator();
 
     return $line;
 }
