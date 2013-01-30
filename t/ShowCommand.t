@@ -16,6 +16,7 @@ my $show = ShowCommand->new();
 isa_ok($show, "ShowCommand"); # test 2
 
 my $a = DSLVar->new($show, 'a');
+$show->setup();
 
 #----------------------------------------------------------------------
 # Test parsing

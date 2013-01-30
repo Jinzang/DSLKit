@@ -13,6 +13,7 @@ my $obj = DSLVar->new();
 is_deeply($obj, {SETUP => 0, STATE => {}, VALUE => []}, "New object"); # test 2
 is(ref $obj, 'DSLVar', "Right type"); # test 3
 
+$obj->setup();
 $obj->set('one', 1);
 my $val = $obj->get('one');
 is($val, 1, "Get/set"); # test 4
@@ -50,6 +51,8 @@ $val = $obj->get_var('ok');
 is_deeply($val, $ok, "Get_var/set_var"); # test 12
 
 my $top = DSLVar->new();
+$top->setup();
+
 $obj = DSLVar->new($top, 'ok');
 $val = $obj->get_var('ok');
 is_deeply($val, $obj, "Create named var"); # test 13

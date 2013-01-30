@@ -25,7 +25,7 @@ sub check {
     return ($cmd, $var);
 }
 
-#-------- ---------------------------------------------------------------
+#-----------------------------------------------------------------------
 # Create and set the state of a new variable
 
 sub interpret_some_lines {
@@ -42,8 +42,8 @@ sub interpret_some_lines {
 
     $obj->{STATE} = $self->parse_some_lines($reader, $self, @args);
 
+    $self->increment_setup();
     $obj->setup();
-    $obj->{SETUP} = $self->increment_setup();
 
     return $self;
 }

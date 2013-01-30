@@ -24,6 +24,8 @@ EOQ
 my @lines = map {"$_\n"} split(/\n/, $lines);
 my @input = @lines;
 my $reader = LineReader->new(\@input);
+
+$code->setup();
 my @output = $code->read_some_lines($reader);
 my $end = pop(@output);
 

@@ -35,6 +35,7 @@ isa_ok($main, "DSLMain"); # test 2
 #----------------------------------------------------------------------
 # Test for staging directory
 
+$main->{SETUP} = 1;
 $main->create_stage_dir();
 ok(-e $params{stage_dir}, "Create stage dir"); # test 3
 
@@ -62,6 +63,7 @@ $fd->close;
 
 $main = DSLMain->new(%params);
 $main->main($script_name);
+
 my $msg = $main->get_log();
 my @msg = split(/\n/, $msg);
 

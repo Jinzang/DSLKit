@@ -43,4 +43,4 @@ my $result_ok = {First => 1,
                  };
 
 is_deeply($result, $result_ok, "Test parsing"); # test 3
-is($test->{SETUP}, 1, "Test setup"); # test 4
+ok($test->{SETUP} > 0, "Test setup"); # test 4

@@ -33,7 +33,8 @@ sub interpret_some_lines {
     my $parent = $self->{PARENT} || $self;
     my $obj = DSLMacro->new($parent, $name);
     $obj->set('code', \@lines);
-
+    $obj->increment_setup();
+    
     return $self;
 }
 
