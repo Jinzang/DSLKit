@@ -42,7 +42,7 @@ sub interpret_some_lines {
 
     $obj->{STATE} = $self->parse_some_lines($reader, $self, @args);
 
-    $self->increment_setup();
+    $obj->increment_setup();
     $obj->setup();
 
     return $self;

@@ -35,7 +35,6 @@ isa_ok($main, "DSLMain"); # test 2
 #----------------------------------------------------------------------
 # Test for staging directory
 
-$main->{SETUP} = 1;
 $main->create_stage_dir();
 ok(-e $params{stage_dir}, "Create stage dir"); # test 3
 

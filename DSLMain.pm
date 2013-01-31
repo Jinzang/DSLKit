@@ -127,7 +127,6 @@ sub setup {
     }
 
     $self->put_log($text);
-    $self->increment_setup();
     $self->create_stage_dir();
 
     return;

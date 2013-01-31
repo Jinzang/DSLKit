@@ -72,13 +72,6 @@ sub flatten {
 
 sub get {
     my ($self, $name) = @_;
-
-    if (! $self->{SETUP}) {
-        my $str = ref $self;
-        $str =~ s/Command$//;
-        $str = lc($str);
-        die "$str was not initialized by new\n";
-    }
     
     return unless exists $self->{STATE}{$name};
     return $self->{STATE}{$name};
@@ -363,7 +356,6 @@ sub set {
 sub setup {
     my ($self) = @_;
 
-    $self->increment_setup();
     return;
 }
 

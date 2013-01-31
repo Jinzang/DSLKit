@@ -62,6 +62,24 @@ sub check_string_arg {
 }
 
 #-----------------------------------------------------------------------
+# Get a state value
+
+sub get {
+    my ($self, $name) = @_;
+
+    # Check initialization for user commands
+    
+    if (! $self->{SETUP}) {
+        my $str = ref $self;
+        $str =~ s/Command$//;
+        $str = lc($str);
+        die "$str was not initialized by new\n";
+    }
+    
+    return $self->SUPER::get($name);
+}
+
+#-----------------------------------------------------------------------
 # Interperet the command and log the results
 
 sub interpret_some_lines {
