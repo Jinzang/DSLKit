@@ -18,7 +18,7 @@ sub check_hash_arg {
 
     return unless defined $arg;
     return unless ref $arg;
-    
+
     my $value = $arg->get_value();
     return if @$value && ref $value->[0] ne 'HASH';
 
@@ -33,7 +33,7 @@ sub check_list_arg {
 
     return unless defined $arg;
     return unless ref $arg;
-    
+
     my $value = $arg->get_value();
     return if @$value && ref $value->[0];
 
@@ -47,17 +47,16 @@ sub check_string_arg {
     my ($self, $arg) = @_;
 
     return unless defined $arg;
-    
+
     my $value;
     if (ref $arg) {
-        my $list = $arg->get_value();
-        return unless @$list == 1;
-        $value = $list->[0];
+        $value = $arg->dereferenced_value();
+        return if ref $value;
 
     } else {
         $value = $arg;
     }
-    
+
     return $value;
 }
 
@@ -68,14 +67,14 @@ sub get {
     my ($self, $name) = @_;
 
     # Check initialization for user commands
-    
+
     if (! $self->{SETUP}) {
         my $str = ref $self;
         $str =~ s/Command$//;
         $str = lc($str);
-        die "$str was not initialized by new\n";
+        die "$str was not declared\n";
     }
-    
+
     return $self->SUPER::get($name);
 }
 
@@ -177,7 +176,7 @@ supports three helper methods for check
     $value = $self->check_hash_arg($arg);
     $value = $self->check_list_arg($arg);
     $value = $self->check_string_arg($arg);
-    
+
 These methods check a command line argument to see if it has the correct type.
 If it does, it unmarshalls the data contained in the argument. If not, it
 returns undef.

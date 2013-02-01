@@ -6,7 +6,8 @@ use integer;
 # Base code for witing a Domain Specific Language
 
 package DSLVar;
-use LineReader;
+
+use NoReader;
 use Data::Dumper;
 
 #-----------------------------------------------------------------------
@@ -48,6 +49,24 @@ sub clear_log {
 }
 
 #-----------------------------------------------------------------------
+# Dereferenced value of a variable if it is a scalar
+
+sub dereferenced_value {
+    my ($self) = @_;
+
+    my $value = $self->get_value();
+    if (@$value == 0) {
+        return;
+
+    } elsif (@$value == 1) {
+        return $value->[0];
+
+    } else {
+        return $value;
+    }
+}
+
+#-----------------------------------------------------------------------
 # Convert a list of arrays to one long array
 
 sub flatten {
@@ -72,7 +91,7 @@ sub flatten {
 
 sub get {
     my ($self, $name) = @_;
-    
+
     return unless exists $self->{STATE}{$name};
     return $self->{STATE}{$name};
 }
@@ -146,11 +165,8 @@ sub get_string_value {
 
     my $value;
     if (ref $obj) {
-        my $val = $obj->get_value();
-        my $name = $obj->get_name();
-
-        return unless @$val;
-        $value = join(',', @$val);
+        $value = $obj->dereferenced_value();
+        return if ref $value;
 
     } else {
         $value = $obj;
@@ -196,8 +212,8 @@ sub increment_setup {
 
     my $top = $self->get_top();
     $self->{SETUP} ||= ++ $top->{SETUP};
-    
-    return; 
+
+    return;
 }
 
 #-----------------------------------------------------------------------
@@ -235,7 +251,7 @@ sub next_arg {
             # Bracketed expression, replace with interpreted result
             my $subline;
             ($subline, $line) = $self->subline($line);
-            my $reader = LineReader->new([]);
+            my $reader = NoReader->new;
             $arg = $self->interpret_a_line($reader, $subline, $context);
 
         } elsif ($line =~ s/^\$\*//) {
