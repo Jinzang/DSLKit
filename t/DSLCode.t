@@ -37,11 +37,12 @@ $reader = LineReader->new(\@input);
 
 my $context = [];
 my $line = $reader->next_line();
-my $obj = $code->interpret_a_line($reader, $line, $context);
+my ($obj, @args) = $code->parse_a_line($line, $context);
+$obj->interpret_some_lines($reader, $context, @args);
 
 my $val = $obj->get_value();
-is_deeply($val, [1], "Interpret a line"); # test 6
+is_deeply($val, [1], "Interpret some lines value"); # test 6
 
 $obj = $code->get_var('abe');
 $val = $obj->get_value();
-is_deeply($val, [1], "Interpret some lines"); # test 7
+is_deeply($val, [1], "Interpret some lines variable"); # test 7

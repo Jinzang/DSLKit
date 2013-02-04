@@ -34,7 +34,8 @@ sub parse_some_lines {
     my ($self, $reader, @context) = @_;
 
     while (defined (my $line = $self->get_line($reader, \@context))) {
-        my $obj = $self->interpret_a_line($reader, $line, \@context);
+        my ($obj, @args) = $self->parse_a_line($line, \@context);
+        $obj->interpret_some_lines($reader, \@context, @args);
 
         if ($obj->status() == 0) {
             $self->set_script_status(0);

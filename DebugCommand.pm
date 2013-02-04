@@ -33,7 +33,9 @@ sub interpret_some_lines {
     while (defined (my $line = $self->get_line($reader, $context))) {
         eval {
             $reader->set_prompt(SECOND_PROMPT);
-            my $obj = $self->interpret_a_line($reader, $line, $context);
+            my ($obj, @args) = $self->parse_a_line($line, $context);
+            $obj->interpret_some_lines($reader, $context, @args);
+
             my $val = $obj->stringify();
             print "$val\n" if $val;
         };

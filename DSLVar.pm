@@ -217,16 +217,6 @@ sub increment_setup {
 }
 
 #-----------------------------------------------------------------------
-# Interpret a line containing a command
-
-sub interpret_a_line {
-    my ($self, $reader, $line, $context) = @_;
-
-    my ($obj, @args) = $self->parse_a_line($line, $context);
-    return $obj->interpret_some_lines($reader, $context, @args);
-}
-
-#-----------------------------------------------------------------------
 # Set up one line command to call run
 
 sub interpret_some_lines {
@@ -250,9 +240,10 @@ sub next_arg {
         if ($line =~ /^\[/) {
             # Bracketed expression, replace with interpreted result
             my $subline;
-            ($subline, $line) = $self->subline($line);
             my $reader = NoReader->new;
-            $arg = $self->interpret_a_line($reader, $subline, $context);
+            ($subline, $line) = $self->subline($line);
+            my ($obj, @args) = $self->parse_a_line($subline, $context);
+            $arg = $obj->interpret_some_lines($reader, $context, @args);
 
         } elsif ($line =~ s/^\$\*//) {
             # Star variable, replace with context
