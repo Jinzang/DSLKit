@@ -131,14 +131,6 @@ sub log {
     return;
 }
 
-#-----------------------------------------------------------------------
-# Check the status
-
-sub status {
-    my ($self) = @_;
-
-    return scalar @{$self->get_value()};
-}
 
 1;
 __END__

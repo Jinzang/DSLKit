@@ -11,21 +11,6 @@ use base qw(DSLVar);
 use constant DEFAULT_TERMINATOR => 'end';
 
 #-----------------------------------------------------------------------
-# Get the next input line
-
-sub get_line {
-    my ($self, $reader, $context) = @_;
-
-    my $line = $reader->next_line();
-    return unless defined $line;
-
-    my ($new_line, $arg) = $self->next_arg($line, $context);
-    return if defined $arg && $arg eq $self->terminator();
-
-    return $line;
-}
-
-#-----------------------------------------------------------------------
 # Parse the next block of lines to initialize the state
 
 sub parse_some_lines {
@@ -33,7 +18,7 @@ sub parse_some_lines {
 
     my %hash;
     my $name;
-    while (defined (my $line = $self->get_line($reader, \@context))) {
+    while (defined (my $line = $self->read_a_line($reader, \@context))) {
         chomp $line;
 
         if ($line =~ /^\w+:/) {
@@ -53,23 +38,47 @@ sub parse_some_lines {
 }
 
 #-----------------------------------------------------------------------
+# Read the next input line
+
+sub read_a_line {
+    my ($self, $reader, $context) = @_;
+
+    my $line = $reader->next_line();
+    return unless defined $line;
+
+    my ($new_line, $arg) = $self->next_arg($line, $context);
+    return if defined $arg && $arg eq $self->terminator();
+
+    return $line;
+}
+
+#-----------------------------------------------------------------------
 # Read the next block of lines
 
 sub read_some_lines {
     my ($self, $reader, @context) = @_;
 
-    # One trick that makes this code work is that get_line does not
+    # One trick that makes this code work is that read_a_line does not
     # return the terminating line and this method appends it. This
     # prevents the terminating line from being interpreted.
 
     my @lines;
-    while (defined (my $line = $self->get_line($reader, \@context))) {
+    while (defined (my $line = $self->read_a_line($reader, \@context))) {
         push(@lines, $line);
     }
 
     my $terminator = $self->terminator();
     push(@lines, "$terminator\n");
     return @lines;
+}
+
+#-----------------------------------------------------------------------
+# Check the status
+
+sub status {
+    my ($self) = @_;
+
+    return 1;
 }
 
 #-----------------------------------------------------------------------

@@ -1,4 +1,4 @@
-#!/usr/bin/env perl 
+#!/usr/bin/env perl
 use strict;
 
 use FindBin qw($Bin);
@@ -38,7 +38,7 @@ push(@lines, @first, @second, @third);
 my $reader = LineReader->new(\@lines);
 
 my $context = [];
-my $test = $block->get_line($reader, $context);
+my $test = $block->read_a_line($reader, $context);
 my $ok = shift(@first);
 is($test, $ok, "More lines"); # test 4
 
@@ -54,5 +54,5 @@ my $line = pop(@block);
 is($line, "end\n", "Add end to last line"); # test 7
 is_deeply(\@block, \@third, "Read third block"); # test 8
 
-$test = $block->get_line($reader, $context);
+$test = $block->read_a_line($reader, $context);
 is($test, undef, "No more lines"); # test 9

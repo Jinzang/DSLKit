@@ -14,23 +14,13 @@ use constant FIRST_PROMPT => '> ';
 use constant SECOND_PROMPT => '>> ';
 
 #-----------------------------------------------------------------------
-# Get the next input line
-
-sub get_line {
-    my ($self, $reader, $context) = @_;
-
-    $reader->set_prompt(FIRST_PROMPT);
-    return $self->SUPER::get_line($reader, $context);
-}
-
-#-----------------------------------------------------------------------
 # Interpret lines read from the terminal
 
 sub interpret_some_lines {
     my ($self, $reader, $context, @args) = @_;
 
     $reader = InputReader->new();
-    while (defined (my $line = $self->get_line($reader, $context))) {
+    while (defined (my $line = $self->read_a_line($reader, $context))) {
         eval {
             $reader->set_prompt(SECOND_PROMPT);
             my ($obj, @args) = $self->parse_a_line($line, $context);
@@ -44,6 +34,16 @@ sub interpret_some_lines {
     }
 
     return $self;
+}
+
+#-----------------------------------------------------------------------
+# Read the next input line
+
+sub read_a_line {
+    my ($self, $reader, $context) = @_;
+
+    $reader->set_prompt(FIRST_PROMPT);
+    return $self->SUPER::read_a_line($reader, $context);
 }
 
 #-----------------------------------------------------------------------

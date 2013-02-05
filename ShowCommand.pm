@@ -104,6 +104,15 @@ sub run {
     return $values;
 }
 
+#-----------------------------------------------------------------------
+# Check the status
+
+sub status {
+    my ($self) = @_;
+
+    return 1;
+}
+
 1;
 
 __END__

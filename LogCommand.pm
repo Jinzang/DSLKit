@@ -60,7 +60,7 @@ sub mail_message {
 
     my $mailcmd = get_external_command('sendmail');
     return unless $mailcmd;
-    
+
     my $mail = IO::File->new( "|$mailcmd");
 
     if ($mail) {

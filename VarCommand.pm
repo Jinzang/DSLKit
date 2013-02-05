@@ -43,6 +43,15 @@ sub interpret_some_lines {
     return $self;
 }
 
+#-----------------------------------------------------------------------
+# Check the status
+
+sub status {
+    my ($self) = @_;
+
+    return 1;
+}
+
 1;
 __END__
 =head1 NAME

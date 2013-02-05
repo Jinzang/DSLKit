@@ -412,7 +412,7 @@ sub set_var {
 sub status {
     my ($self) = @_;
 
-    return 1;
+    return scalar @{$self->get_value()};
 }
 
 #-----------------------------------------------------------------------

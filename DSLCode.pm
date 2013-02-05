@@ -8,16 +8,52 @@ use integer;
 package DSLCode;
 
 use base qw(DSLBlock);
+use constant DEBUG => 0;
 
 #-----------------------------------------------------------------------
-# Get the next input line
+# Interpret a single line
 
-sub get_line {
+sub interpret_a_line {
+    my ($self, $reader, $line, $context) = @_;
+
+    if (DEBUG) {
+        chomp $line;
+        print $line, "\n";
+    }
+
+    my ($obj, @args) = $self->parse_a_line($line, $context);
+    $obj->interpret_some_lines($reader, $context, @args);
+
+    return $obj->status();
+}
+
+#-----------------------------------------------------------------------
+# Parse a set of lines
+
+sub parse_some_lines {
+    my ($self, $reader, @context) = @_;
+
+    while (defined (my $line = $self->read_a_line($reader, \@context))) {
+        my $status = $self->interpret_a_line($reader, $line, \@context);
+
+        if ($status == 0) {
+            $self->set_script_status(0);
+            last;
+        }
+    }
+
+    return $self;
+}
+
+#-----------------------------------------------------------------------
+# Read the next input line
+
+sub read_a_line {
     my ($self, $reader, $context) = @_;
 
     my $line;
     do {
-        $line = $self->SUPER::get_line($reader, $context);
+        $line = $self->SUPER::read_a_line($reader, $context);
         return unless defined $line;
 
         my $comment;
@@ -28,32 +64,13 @@ sub get_line {
 }
 
 #-----------------------------------------------------------------------
-# Parse a set of lines
-
-sub parse_some_lines {
-    my ($self, $reader, @context) = @_;
-
-    while (defined (my $line = $self->get_line($reader, \@context))) {
-        my ($obj, @args) = $self->parse_a_line($line, \@context);
-        $obj->interpret_some_lines($reader, \@context, @args);
-
-        if ($obj->status() == 0) {
-            $self->set_script_status(0);
-            last;
-        }
-    }
-
-    return $self;
-}
-
-#-----------------------------------------------------------------------
 # Read the next block of lines
 
 sub read_some_lines {
     my ($self, $reader, @context) = @_;
 
     my @lines;
-    while (defined (my $line = $self->get_line($reader, \@context))) {
+    while (defined (my $line = $self->read_a_line($reader, \@context))) {
         push(@lines, $line);
 
         my ($new_line, $cmd) = $self->next_arg($line, \@context);
