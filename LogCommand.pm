@@ -105,7 +105,12 @@ sub teardown {
 
     my $status = $self->get_script_status();
     my $level = $self->get('Level') || 0;
-    $self->mail_message() if $level <= $status;
+
+    if ($level <= $status) {
+        $self->mail_message();
+    } else {
+        $self->clear_log();
+    }
 
    return;
 }
