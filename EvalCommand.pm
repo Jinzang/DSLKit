@@ -10,11 +10,11 @@ package EvalCommand;
 use base qw(DSLVar);
 
 #-----------------------------------------------------------------------
-# Set up one line command to call run
+# Evaluate an expression as perl
 
 sub interpret_some_lines {
     my ($self, $reader, $context, $expr) = @_;
-
+    
     my $fun = $self->make_fun($context, $expr);
 
     my $prefix = '{&$fun';
@@ -30,7 +30,7 @@ sub interpret_some_lines {
 }
 
 #-----------------------------------------------------------------------
-# Make the function that returns variable values
+# Make the function that returns a reference to a variable
 
 sub make_fun {
     my ($self, $context, $expr) = @_;
@@ -58,7 +58,7 @@ sub make_fun {
 }
 
 #-----------------------------------------------------------------------
-# Return the next argument from a line
+# Return the whole line as a single argument
 
 sub next_arg {
     my ($self, $line, $context) = @_;
@@ -79,14 +79,14 @@ EvalCommand -- Evaluate line as a Perl expression
     
 =head1 DESCRIPTION
 
-Thee command evaluates the rest of the line as a perl expression and returns
+This command evaluates the rest of the line as a perl expression and returns
 its value
 
 =head1 ARGUMENTS
 
-This command evaluates the rest of the line as an expression and returns the
-value of the expression. The expression should be valid Perl and not have side
-effects.
+This command evaluates the rest of the line as an expression. The expression
+should be valid Perl and not have side effects. It is mostly intended to
+support tests for the if command.
 
 =head1 PARAMETERS
 
