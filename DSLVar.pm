@@ -504,10 +504,10 @@ DSLVar -- Base class for DSL objects
 
 =head1 SYNOPSIS
 
-This class implements the most basic type of object, variable. One feature of
-the DSL code is that every command is an class and each use of a command is a
-variable which is an instance of that class. This class implements simple
-variables whose runtime method is assignment.
+This class implements the most basic type of object, a variable. One feature of
+the DSL code is that every command is an class and each use of a command is an
+object which is an instance of that class and has both a value and a runtime
+method. This class implements simple variables whose runtime method is assignment.
 
 Each variable has three fields: VALUE, an array reference which contains the
 value of the object, STATE, a hash reference which contains the object state
@@ -528,50 +528,6 @@ first argument is the container object, usually the object whose method is
 calling new. The second argument is the name of the variable, which can be used
 to retrieve it later. New can be called without any arguments, in which case
 it creates an anonymous variable.
-
-When subclassing, you will overload one of the following three methods,
-depending on how much control you need.
-
-=head2 check
-
-    @new_args = $var->check(@args);
-
-Check unmarsalls the data from the arguments passed to a command and checks that
-they are the correct number and type.
-
-=head2 run
-
-    my $value = $var->run(@args);
-
-The run method returns a list containing the values of the arguments passed to
-it, or the value of the variable if called with no arguments.
-
-=head2 interpret_some_lines
-
-    $var = $var->interpret_some_lines($reader, $context, @args);
-
-The most general way to invoke a variable is with this method. The first
-argument, $reader, is an object with a next_line method, which gets the next
-line of the script. Context is a reference to the argument list that the
-containing object was invoked with. The remaining arguments are the same as
-those of run.
-
-This method would be used by classes subclassing DSLVar if they have multiple
-lines or need to use the arguments of the object invoking it.
-
-=head2 setup
-
-    $var->setup();
-
-The setup method is called on an object after its state in initialized. It is
-not used by simple variables.
-
-=head2 teardown
-
-    $var->teardown();
-
-The teardown method is called at the end of the script on each object where
-the setup method was called. It is not used by simple variables.
 
 This class also supports a number of getters and setters for its fields
 
@@ -624,3 +580,50 @@ error exit=2.
 The get_log method retrieves all the log messages. The put_log method appends
 a message to the log. The clear_log method removes any messages. Any messages in
 the log are printed when the script exits.
+
+When subclassing DSLVar, you will overload one or more of the following
+methods.
+
+=head2 interpret_some_lines
+
+    $var = $var->interpret_some_lines($reader, $context, @args);
+
+The most general way to invoke a variable is with this method. The first
+argument, $reader, is an object with a next_line method, which gets the next
+line of the script. Context is a reference to the argument list that the
+containing object was invoked with. The remaining arguments are interpreted by
+the method.
+
+This method would be used by classes subclassing DSLVar if they have multiple
+lines or need to use the arguments of the object invoking it. If you do not
+need this, overload one or more of the following methods:
+
+=head2 setup
+
+    $var->setup();
+
+The setup method is called on an object after its state in initialized. It is
+not used by simple variables, but may be used by your class.
+
+=head2 check
+
+    @new_args = $var->check(@args);
+
+Check unmarsalls the data from the arguments passed to a command and checks that
+they are the correct number and type. The unmarshalled data is passed to run.
+
+=head2 run
+
+    my $value = $var->run(@args);
+
+The run method implements your command. For simple variables, itreturns a list
+containing the values of the arguments passed to it, or the value of the
+variable if called with no arguments.
+
+=head2 teardown
+
+    $var->teardown();
+
+The teardown method is called at the end of the script on each object where
+the setup method was called. It is not used by simple variables.
+

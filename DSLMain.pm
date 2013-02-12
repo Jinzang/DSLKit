@@ -189,7 +189,11 @@ script and implement the execute or run method. The language commands are
 
 =item debug - Stop and accept new commands from terminal
 
+=item eval - Evaluate a Perl expression
+
 =item for - Loop over a block of commands
+
+=item if - Execute a block of lines only if an expression is true
 
 =item log - Write a message to log and mail log to user
 
@@ -201,6 +205,8 @@ script and implement the execute or run method. The language commands are
 
 =item show - Get the value of a variable field
 
+=item var Initialize a command without setting parameters
+
 =back
 
 Commands are explained in more details in the files that implement them. New
@@ -209,9 +215,9 @@ These classes are:
 
 =over
 
-=item DSLVar - For single line commands and the base class for all commands
+=item DSLVar - The base class for all commands and some single line commands
 
-=item DSLCmd - For single line commands that log a message when they run
+=item DSLCmd - The base class for most single line commands
 
 =item DSLBlock - For multiple line commands whose following lines are data
 
@@ -233,7 +239,7 @@ that connects with the rest of your script.
 The new method creates a new top level object. The top level object contains
 all the named variables in the script, the log messages, and the script status.
 The argument to the new method is a hash containing pre-defined variables that
-your script will use. The DSLMain method as written expects the variable
+your script will use. The DSLMain method as written here expects the variable
 stage_dir, which is used to create a directory to hold temporary files used by
 the script. If it is not present, the directory will not be created.
 
