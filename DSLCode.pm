@@ -8,18 +8,12 @@ use integer;
 package DSLCode;
 
 use base qw(DSLBlock);
-use constant DEBUG => 0;
 
 #-----------------------------------------------------------------------
 # Interpret a single line
 
 sub interpret_a_line {
     my ($self, $reader, $line, $context) = @_;
-
-    if (DEBUG) {
-        chomp $line;
-        print $line, "\n";
-    }
 
     my ($obj, @args) = $self->parse_a_line($line, $context);
     $obj->interpret_some_lines($reader, $context, @args);
@@ -89,7 +83,7 @@ sub read_some_lines {
 __END__
 =head1 NAME
 
-DSLBlock -- Base class for commands with multi-line data
+DSLCode -- Base class for block level demands
 
 =head1 SYNOPSIS
 
