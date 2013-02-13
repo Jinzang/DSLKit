@@ -27,7 +27,7 @@ sub parse_some_lines {
             $hash{$name} = $value;
 
         } else {
-            die "Undefined field name\n" . substr($line, 20) . "\n"
+            die "Undefined field name\n" . substr($line, 0, 20) . "\n"
                 unless defined $name;
 
             $hash{$name} .= "\n$line";
