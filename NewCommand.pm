@@ -40,7 +40,7 @@ sub interpret_some_lines {
     my @lines = $self->read_some_lines($lines);
     my $reader = LineReader->new(\@lines);
 
-    $obj->{STATE} = $self->parse_some_lines($reader, $self, @args);
+    $obj->{STATE} = $obj->parse_some_lines($reader, $self, @args);
 
     $obj->increment_setup();
     $obj->setup();

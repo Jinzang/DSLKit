@@ -10,6 +10,8 @@ package DSLVar;
 use NoReader;
 use Data::Dumper;
 
+use constant DEFAULT_TERMINATOR => 'end';
+
 #-----------------------------------------------------------------------
 # Create a new object
 
@@ -318,6 +320,33 @@ sub parse_a_line {
 }
 
 #-----------------------------------------------------------------------
+# Parse the next block of lines to initialize the state
+
+sub parse_some_lines {
+    my ($self, $reader, @context) = @_;
+
+    my %hash;
+    my $name;
+    while (defined (my $line = $self->read_a_line($reader, \@context))) {
+        chomp $line;
+
+        if ($line =~ /^\w+:/) {
+            my $value;
+            ($name, $value) = split(/:\s*/, $line, 2);
+            $hash{$name} = $value;
+
+        } else {
+            die "Undefined field name\n" . substr($line, 0, 20) . "\n"
+                unless defined $name;
+
+            $hash{$name} .= "\n$line";
+        }
+    }
+
+    return \%hash;
+}
+
+#-----------------------------------------------------------------------
 # Put a message to the log file
 
 sub put_log {
@@ -328,6 +357,21 @@ sub put_log {
     $top->{LOG} .= $msg;
 
     return;
+}
+
+#-----------------------------------------------------------------------
+# Read the next input line
+
+sub read_a_line {
+    my ($self, $reader, $context) = @_;
+
+    my $line = $reader->next_line();
+    return unless defined $line;
+
+    my ($new_line, $arg) = $self->next_arg($line, $context);
+    return if defined $arg && $arg eq $self->terminator();
+
+    return $line;
 }
 
 #-----------------------------------------------------------------------
@@ -472,11 +516,11 @@ sub teardown {
 }
 
 #-----------------------------------------------------------------------
-# Get the string which terminates a block of commands (stub)
+# Get the string which terminates a block of commands
 
 sub terminator {
     my ($self) = @_;
-    return;
+    return DEFAULT_TERMINATOR;
 }
 
 1;
@@ -598,6 +642,16 @@ This method would be used by classes subclassing DSLVar if they have multiple
 lines or need to use the arguments of the object invoking it. If you do not
 need this, overload one or more of the following methods:
 
+=head2 parse_some_lines
+
+    $data = $obj->parse_some_lines($reader, @context);
+
+This method is used to parse the following lines of a multi-line command, up
+to the terminating line. The following lines are converted into $data, which
+is returned from the method. $reader has the next_line method, which is used
+to get the following lines. @context contains the parsed arguments from the
+first line of the multi-line command.
+
 =head2 setup
 
     $var->setup();
@@ -627,3 +681,10 @@ variable if called with no arguments.
 The teardown method is called at the end of the script on each object where
 the setup method was called. It is not used by simple variables.
 
+=head2 terminator
+
+    $str = $obj->terminator();
+
+The method returns the string used to end the block of lines. Each line is
+parsed into arguments and when the first argument matches the terminator,
+the command is done.
