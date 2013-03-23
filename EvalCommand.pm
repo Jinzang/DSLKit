@@ -38,17 +38,17 @@ sub make_fun {
     my $fun = sub {
         my ($name) = @_;
 
-        my $val;
+        my $var;
         if ($name =~ /^(\d+)$/) {
             # Numeric variable: get from context
-            $val = $context->[$name];
+            $var = $context->[$name];
 
         } else {
             # Named variable: look up or create
-            my $var = $self->get_var($name) || DSLVar->new();
-            $val = $var->dereferenced_value();
+            $var = $self->get_var($name) || DSLVar->new();
         }
 
+        my $val = ref $var ? $var->dereferenced_value() : $var;
         return ref $val ? $val : \$val;
     };
 
