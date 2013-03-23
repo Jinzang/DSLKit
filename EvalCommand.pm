@@ -1,6 +1,5 @@
 use strict;
 use warnings;
-use integer;
 
 #-----------------------------------------------------------------------
 # Show contents of a variable
@@ -15,15 +14,16 @@ use base qw(DSLVar);
 sub interpret_some_lines {
     my ($self, $reader, $context, $expr) = @_;
     
-    my $fun = $self->make_fun($context, $expr);
+    my $fun = $self->make_fun($context);
 
-    my $prefix = '{&$fun';
+    my $prefix = '{$fun->';
     my $suffix ='}';
     
-    $expr =~ s/([\$\@\%])(\w+)/$1$prefix('$2')$suffix/g;
+    my $perl_expr = $expr;
+    $perl_expr =~ s/([\$\@\%])(\w+)/$1$prefix('$2')$suffix/g;
     
-    my $result = eval $expr;
-    die "Syntax error in expr: $expr\n" if $@;
+    my $result = eval $perl_expr;
+    die "Syntax error in eval: $@\n" if $@;
     
     $self->set_value($result);
     return $self;
@@ -33,25 +33,23 @@ sub interpret_some_lines {
 # Make the function that returns a reference to a variable
 
 sub make_fun {
-    my ($self, $context, $expr) = @_;
+    my ($self, $context) = @_;
 
     my $fun = sub {
         my ($name) = @_;
 
-        my $var;
+        my $val;
         if ($name =~ /^(\d+)$/) {
             # Numeric variable: get from context
-            $var = $context->[$name];
+            $val = $context->[$name];
 
         } else {
             # Named variable: look up or create
-            $var = $self->get_var($name) || DSLVar->new();
+            my $var = $self->get_var($name) || DSLVar->new();
+            $val = $var->dereferenced_value();
         }
 
-        my $val = $var->dereferenced_value();
-        my $ptr = ref $val ? $val : \$val;
-
-        return $ptr;
+        return ref $val ? $val : \$val;
     };
 
     return $fun;    
