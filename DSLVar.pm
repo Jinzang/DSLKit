@@ -128,6 +128,7 @@ sub get_pkg {
         $obj = $cmd;
 
     } else {
+        # TODO use $self->{PATH} to find package
         my $pkg =  ucfirst(lc($cmd)) . 'Command';
         eval "require $pkg" or die "Command not found: $cmd\n";
         $obj = $pkg->new($self, $name);
