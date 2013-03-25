@@ -8,7 +8,6 @@ use integer;
 package DSLMain;
 
 use base qw(DSLCode);
-use ExternalCommands;
 use ScriptReader;
 use LineReader;
 
@@ -28,49 +27,24 @@ sub new {
 }
 
 #----------------------------------------------------------------------
-# Create an empty staging directory
+# Clean up by calling the teardown methods on all variables
 
-sub create_stage_dir {
+sub cleanup {
     my ($self) = @_;
 
-    my $stage_dir = $self->get_string_value('stage_dir');
-    return unless defined $stage_dir;
+    my $errors = '';
+    my $state = $self->{STATE};
+    my @names = sort {$state->{$b}{SETUP} <=> $state->{$a}{SETUP}} keys %$state;
 
-    $self->delete_stage_dir() if -e $stage_dir;
+    foreach my $name (@names) {
+        my $obj = $self->get($name);
+        next unless ref $obj && $obj->{SETUP};
 
-    mkdir($stage_dir) or die "Couldn't make staging directory: $!";
-    chdir($stage_dir) or die "Couldn't cd to staging directory: $!";
+        eval {$obj->teardown()};
+        $errors .= $@ if $@;
+    }
 
-    return;
-}
-
-#----------------------------------------------------------------------
-# Delete the directory used for staged files
-
-sub delete_stage_dir {
-    my ($self) = @_;
-
-    my $stage_dir = $self->get_string_value('stage_dir');
-    return unless defined $stage_dir;
-    my $base_dir = $ENV{HOME} || '';
-
-    chdir($base_dir);
-    system("rm -rf '$stage_dir'") ==  0
-        or die "Deleting stage dir failed: $?";
-
-    return;
-}
-
-#-----------------------------------------------------------------------
-# Log error and change status
-
-sub error {
-    my ($self, $error) = @_;
-
-    $self->put_log($error);
-    $self->set_script_status(2);
-
-    return;
+    return $errors ;
 }
 
 #-----------------------------------------------------------------------
@@ -99,63 +73,18 @@ sub main {
         $self->setup(@args);
         my $reader = $self->get_reader(@args);
         $self->parse_some_lines($reader, $self, @args);
+
+        $self->cleanup();
+        $self->teardown();
     };
 
-    $self->error($@) if $@;
-    $self->teardown();
+    my $errors = '';
+    $errors .= $@ if $@;
+    
+    eval {$self->teardown()};
+    $errors .= $@ if $@;
 
-    return;
-}
-
-#----------------------------------------------------------------------
-# Set up the script
-
-sub setup {
-    my ($self, $script_name, @args) = @_;
-
-    $self->set_script_status(1);
-    $self->put_log("This script is $script_name\n") if $script_name;
-
-    my $text = 'Script was run at ' . localtime();
-
-    my $cmd = get_external_command('uname');
-    if ($cmd) {
-        my $uname = `$cmd`;
-        $text .= " on $uname";
-    } else {
-        $text .= "\n";
-    }
-
-    $self->put_log($text);
-    $self->create_stage_dir();
-
-    return;
-}
-
-#----------------------------------------------------------------------
-# Call the teardown methods on all variables
-
-sub teardown {
-    my ($self) = @_;
-
-    my $state = $self->{STATE};
-    my @names = sort {$state->{$b}{SETUP} <=> $state->{$a}{SETUP}} keys %$state;
-
-    foreach my $name (@names) {
-        my $obj = $self->get($name);
-        next unless ref $obj && $obj->{SETUP};
-
-        eval {$obj->teardown()};
-        $self->error($@) if $@;
-    }
-
-    eval {$self->delete_stage_dir()};
-    $self->error($@) if $@;
-
-    my $msg = $self->get_log();
-    print $msg if $msg;
-
-    return;
+    return $errors;
 }
 
 1;
@@ -168,8 +97,9 @@ DSLMain -- Top level for DSL scripts
 
     use DSLMain;
     my $script = shift @ARGV;
-    my $demo = DSLMain->new(stage_dir => "/tmp");
-    $demo->main($script, @ARGV);
+    my $demo = DSLMain->new();
+    $errors = $demo->main($script, @ARGV);
+    print $errors if $errors;
 
 =head1 DESCRIPTION
 
@@ -192,6 +122,8 @@ script and implement the execute or run method. The language commands are
 =item eval - Evaluate a Perl expression
 
 =item for - Loop over a block of commands
+
+=item include - Include and execute the contents of another file
 
 =item if - Execute a block of lines only if an expression is true
 
@@ -239,15 +171,16 @@ that connects with the rest of your script.
 The new method creates a new top level object. The top level object contains
 all the named variables in the script, the log messages, and the script status.
 The argument to the new method is a hash containing pre-defined variables that
-your script will use. The DSLMain method as written here expects the variable
-stage_dir, which is used to create a directory to hold temporary files used by
-the script. If it is not present, the directory will not be created.
+your script will use.
 
 =head2 main
 
-    $obj->main($filename, @args);
+    my $errors = $obj->main($filename, @args);
 
 The main method should be called after creating the object with new. The first
 argument is a filename of a script containing command lines to be interpreted.
 The remaining arguments should be scalars. They can be accessed in the script
 using numbered variables ($1, $2, ...) or as a whole with $*.
+
+The main method returns a string containing all errors that occurred during
+execution of the script, or an empty string if no errors occurred.
