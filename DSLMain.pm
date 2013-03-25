@@ -147,20 +147,19 @@ These classes are:
 
 =over
 
-=item DSLVar - The base class for all commands and some single line commands
-
-=item DSLCmd - The base class for most single line commands
+=item DSLVar - The base class for all commands and for single line commands
 
 =item DSLBlock - For multiple line commands whose following lines are data
 
 =item DSLCode - For multiple line commands whose following lines are commands
 
+=item DSLMain - For the main method which interprets scripts
+
 =back
 
-The documentation in these classes explain how to subclass them. I expect that
-this code will not entirely meet your needs and you will need to modify it
-before using it. This is especially true of this class, as it is the interface
-that connects with the rest of your script.
+The documentation in these classes explain how to subclass them. To subclass
+this class you will probably want to override the new, main, setup, and
+teardown methods.
 
 =head1 METHODS
 
@@ -184,3 +183,17 @@ using numbered variables ($1, $2, ...) or as a whole with $*.
 
 The main method returns a string containing all errors that occurred during
 execution of the script, or an empty string if no errors occurred.
+
+=head2 setup
+
+    $obj->setup();
+    
+Any script specific initialization needed by the script needed by subclasses
+should be done here. In DSLMain, this method does nothing.
+
+=head2 teardown
+
+    $obj->teardown();
+
+Any script specific clean up needed by the script needed by subclasses
+should be done here. In DSLMain, this method does nothing.
