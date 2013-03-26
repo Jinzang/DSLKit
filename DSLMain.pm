@@ -84,7 +84,8 @@ sub main {
     eval {$self->teardown()};
     $errors .= $@ if $@;
 
-    return $errors;
+    die $errors if $errors;    
+    return;
 }
 
 1;
@@ -98,8 +99,7 @@ DSLMain -- Top level for DSL scripts
     use DSLMain;
     my $script = shift @ARGV;
     my $demo = DSLMain->new();
-    $errors = $demo->main($script, @ARGV);
-    print $errors if $errors;
+    $demo->main($script, @ARGV);
 
 =head1 DESCRIPTION
 
