@@ -7,7 +7,7 @@ use integer;
 
 package LogCommand;
 
-use base qw(DSLVar);
+use base qw(DSLCmd);
 
 use IO::File;
 use ExternalCommands;
@@ -28,6 +28,19 @@ sub check {
     }
 
     return @new_args;
+}
+
+#-----------------------------------------------------------------------
+# Write a log message
+
+sub interpret_some_lines {
+    my ($self, $reader, $context, @args) = @_;
+
+    @args = $self->check(@args);
+    my $result = $self->run(@args);
+    $self->set_value($result);
+
+    return $self;
 }
 
 #----------------------------------------------------------------------
@@ -85,20 +98,20 @@ sub mail_message {
     return;
 }
 
-#-----------------------------------------------------------------------
-# Write a log message
+#----------------------------------------------------------------------
+# Add a message to the log
 
 sub run {
-    my ($self, @args) = @_;
+    my ($self, @args) = @_;    
 
-    my $msg = join(' ', $self->check(@args));
-    $self->put_log("$msg\n");
+    my $msg = join(' ', $self->check(@args)) . "\n";
+    $self->put_log("$msg");
 
     return $msg;
 }
 
 #----------------------------------------------------------------------
-# Add error messages to log file and mail the log
+# Mail the log file if it exceeds the reporting level
 
 sub teardown {
     my ($self) = @_;

@@ -34,10 +34,14 @@ MacroCommand -- Save a block of commands to be run later
 
 =head1 SYNOPSIS
 
-    macro $hello
-    log Hello $1
+    macro $sum
+    $acc 0
+    for $i $*
+    $acc [eval $acc+$i]
     end
-    $hello World!
+    $acc
+    end
+    $sum 10 20 30
 
 =head1 DESCRIPTION
 

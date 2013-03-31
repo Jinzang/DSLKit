@@ -40,14 +40,53 @@ sub check {
 }
 
 #-----------------------------------------------------------------------
-# Clear the log messages
+# Check for hash argument
 
-sub clear_log {
-    my ($self) = @_;
+sub check_hash_arg {
+    my ($self, $arg) = @_;
 
-    my $top = $self->get_top();
-    $top->{LOG} = '';
-    return;
+    return unless defined $arg;
+    return unless ref $arg;
+
+    my $value = $arg->get_value();
+    return if @$value && ref $value->[0] ne 'HASH';
+
+    return $value;
+}
+
+#-----------------------------------------------------------------------
+# Check for list argument
+
+sub check_list_arg {
+    my ($self, $arg) = @_;
+
+    return unless defined $arg;
+    return unless ref $arg;
+
+    my $value = $arg->get_value();
+    return if @$value && ref $value->[0];
+
+    return $value;
+}
+
+#-----------------------------------------------------------------------
+# Check for string argument
+
+sub check_string_arg {
+    my ($self, $arg) = @_;
+
+    return unless defined $arg;
+
+    my $value;
+    if (ref $arg) {
+        $value = $arg->dereferenced_value();
+        return if ref $value;
+
+    } else {
+        $value = $arg;
+    }
+
+    return $value;
 }
 
 #-----------------------------------------------------------------------
@@ -99,16 +138,6 @@ sub get {
 }
 
 #-----------------------------------------------------------------------
-# Get the log messages
-
-sub get_log {
-    my ($self) = @_;
-
-    my $top = $self->get_top();
-    return $top->{LOG};
-}
-
-#-----------------------------------------------------------------------
 # Get the name of a variable
 
 sub get_name {
@@ -135,16 +164,6 @@ sub get_pkg {
     }
 
     return $obj;
-}
-
-#-----------------------------------------------------------------------
-# Get the status of the entire script
-
-sub get_script_status {
-    my ($self) = @_;
-
-    my $top = $self->get_top();
-    return $top->{STATUS};
 }
 
 #-----------------------------------------------------------------------
@@ -348,19 +367,6 @@ sub parse_some_lines {
 }
 
 #-----------------------------------------------------------------------
-# Put a message to the log file
-
-sub put_log {
-    my ($self, $msg) = @_;
-
-    my $top = $self->get_top();
-    $top->{LOG} = '' unless exists $top->{LOG};
-    $top->{LOG} .= $msg;
-
-    return;
-}
-
-#-----------------------------------------------------------------------
 # Read the next input line
 
 sub read_a_line {
@@ -412,17 +418,6 @@ sub setup {
 }
 
 #-----------------------------------------------------------------------
-# Set the status
-
-sub set_script_status {
-    my ($self, $value) = @_;
-
-    my $top = $self->get_top();
-    $top->{STATUS} = $value;
-    return;
-}
-
-#-----------------------------------------------------------------------
 # Set the value
 
 sub set_value {
@@ -457,7 +452,7 @@ sub set_var {
 sub status {
     my ($self) = @_;
 
-    return scalar @{$self->get_value()};
+    return 1;
 }
 
 #-----------------------------------------------------------------------
@@ -607,28 +602,6 @@ Return the topmost variable, which is found by tracing up the PARENT refernces.
 The topmost variable has several extra fields, which can be retrieved from any
 variable by several other methods.
 
-=head2 get_script_status set_script_status
-
-    my $code = $var->get_script_status();
-    $var->set_script_status($code);
-
-The status of the script is accessed through the get_script_status and
-set_script_status fields. The numeric codes are early exit=0 normal exit=1
-error exit=2.
-
-=head2 get_log put_log clear_log
-
-    my $msg = $var->get_log();
-    $var->put_log();
-    $var->clear_log();
-
-The get_log method retrieves all the log messages. The put_log method appends
-a message to the log. The clear_log method removes any messages. Any messages in
-the log are printed when the script exits.
-
-When subclassing DSLVar, you will overload one or more of the following
-methods.
-
 =head2 interpret_some_lines
 
     $var = $var->interpret_some_lines($reader, $context, @args);
@@ -640,18 +613,7 @@ containing object was invoked with. The remaining arguments are interpreted by
 the method.
 
 This method would be used by classes subclassing DSLVar if they have multiple
-lines or need to use the arguments of the object invoking it. If you do not
-need this, overload one or more of the following methods:
-
-=head2 parse_some_lines
-
-    $data = $obj->parse_some_lines($reader, @context);
-
-This method is used to parse the following lines of a multi-line command, up
-to the terminating line. The following lines are converted into $data, which
-is returned from the method. $reader has the next_line method, which is used
-to get the following lines. @context contains the parsed arguments from the
-first line of the multi-line command.
+lines or need to use the arguments of the object invoking it.
 
 =head2 setup
 
@@ -667,11 +629,21 @@ not used by simple variables, but may be used by your class.
 Check unmarsalls the data from the arguments passed to a command and checks that
 they are the correct number and type. The unmarshalled data is passed to run.
 
+=head2 chack_hash_arg check_list_arg check_string_arg
+
+    $value = $self->check_hash_arg($arg);
+    $value = $self->check_list_arg($arg);
+    $value = $self->check_string_arg($arg);
+
+These methods check a command line argument to see if it has the correct type.
+If it does, it unmarshalls the data contained in the argument. If not, it
+returns undef.
+
 =head2 run
 
     my $value = $var->run(@args);
 
-The run method implements your command. For simple variables, itreturns a list
+The run method implements your command. For simple variables, it returns a list
 containing the values of the arguments passed to it, or the value of the
 variable if called with no arguments.
 
@@ -682,10 +654,21 @@ variable if called with no arguments.
 The teardown method is called at the end of the script on each object where
 the setup method was called. It is not used by simple variables.
 
+=head2 parse_some_lines
+
+    $data = $obj->parse_some_lines($reader, @context);
+
+This method is used to parse the following lines of a multi-line command, up
+to the terminating line. The following lines are converted into $data, which
+is returned from the method. $reader has the next_line method, which is used
+to get the following lines. @context contains the parsed arguments from the
+first line of the multi-line command.
+
 =head2 terminator
 
     $str = $obj->terminator();
 
-The method returns the string used to end the block of lines. Each line is
+The method returns the string used to end a multi line command. Each line is
 parsed into arguments and when the first argument matches the terminator,
 the command is done.
+

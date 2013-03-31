@@ -19,13 +19,12 @@ isa_ok($var, "VarCommand"); # test 2
 # Test methods
 
 my $source = <<'EOQ';
-var mock $test
-$test
+var set $test
 EOQ
 
 my $block = DSLMock->main($source);
 
 my $test = $block->get_var('test');
 my $type = ref $test;
-is($type, 'MockCommand', "set type"); # test 3
+is($type, 'SetCommand', "set type"); # test 3
 ok($test->{SETUP} > 0, "test setup"); # test 4

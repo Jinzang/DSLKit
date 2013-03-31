@@ -29,11 +29,7 @@ sub parse_some_lines {
 
     while (defined (my $line = $self->read_a_line($reader, \@context))) {
         my $status = $self->interpret_a_line($reader, $line, \@context);
-
-        if ($status == 0) {
-            $self->set_script_status(0);
-            last;
-        }
+        last if $status == 0;
     }
 
     return $self;

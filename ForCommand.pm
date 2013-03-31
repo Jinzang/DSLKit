@@ -52,8 +52,9 @@ ForCommand -- Loop over block of commands
 
 =head1 SYNOPSIS
 
+    $say ''
     for $countdown three two one blastoff
-    log $countdown
+    $say "$say$countdown..."
     end
 
 =head1 USAGE

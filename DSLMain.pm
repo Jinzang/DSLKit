@@ -44,6 +44,9 @@ sub cleanup {
         $errors .= $@ if $@;
     }
 
+    eval {$self->teardown()};
+    $errors .= $@ if $@;
+
     return $errors ;
 }
 
@@ -73,16 +76,11 @@ sub main {
         $self->setup(@args);
         my $reader = $self->get_reader(@args);
         $self->parse_some_lines($reader, $self, @args);
-
-        $self->cleanup();
-        $self->teardown();
     };
-
+    
     my $errors = '';
     $errors .= $@ if $@;
-    
-    eval {$self->teardown()};
-    $errors .= $@ if $@;
+    $errors .= $self->cleanup();
 
     die $errors if $errors;    
     return;
@@ -113,7 +111,7 @@ Each command is implemented by a package whose name is the capitalized command
 name followed by the word 'Command'. Commands are divided into core language
 commands, which implement the method intereperet_some_lines (even if they are
 single line commands)  and functional commands, which do the actual work of the
-script and implement the execute or run method. The language commands are
+script and implement the run method. The language commands are
 
 =over
 
@@ -127,13 +125,11 @@ script and implement the execute or run method. The language commands are
 
 =item if - Execute a block of lines only if an expression is true
 
-=item log - Write a message to log and mail log to user
-
 =item macro - Define a block of commands as a macro
 
-=item mock - A fake command for testing
-
 =item new - Define parameters for a command and initialize it
+
+=item set - Set the value of a variable
 
 =item show - Get the value of a variable field
 

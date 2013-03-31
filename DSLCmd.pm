@@ -11,53 +11,14 @@ use IO::File;
 use base qw(DSLVar);
 
 #-----------------------------------------------------------------------
-# Check for hash argument
+# Clear the log messages
 
-sub check_hash_arg {
-    my ($self, $arg) = @_;
+sub clear_log {
+    my ($self) = @_;
 
-    return unless defined $arg;
-    return unless ref $arg;
-
-    my $value = $arg->get_value();
-    return if @$value && ref $value->[0] ne 'HASH';
-
-    return $value;
-}
-
-#-----------------------------------------------------------------------
-# Check for list argument
-
-sub check_list_arg {
-    my ($self, $arg) = @_;
-
-    return unless defined $arg;
-    return unless ref $arg;
-
-    my $value = $arg->get_value();
-    return if @$value && ref $value->[0];
-
-    return $value;
-}
-
-#-----------------------------------------------------------------------
-# Check for string argument
-
-sub check_string_arg {
-    my ($self, $arg) = @_;
-
-    return unless defined $arg;
-
-    my $value;
-    if (ref $arg) {
-        $value = $arg->dereferenced_value();
-        return if ref $value;
-
-    } else {
-        $value = $arg;
-    }
-
-    return $value;
+    my $top = $self->get_top();
+    $top->{LOG} = '';
+    return;
 }
 
 #-----------------------------------------------------------------------
@@ -79,13 +40,43 @@ sub get {
 }
 
 #-----------------------------------------------------------------------
+# Get the log messages
+
+sub get_log {
+    my ($self) = @_;
+
+    my $top = $self->get_top();
+    return $top->{LOG};
+}
+
+#-----------------------------------------------------------------------
+# Get the status of the entire script
+
+sub get_script_status {
+    my ($self) = @_;
+
+    my $top = $self->get_top();
+    return $top->{STATUS};
+}
+
+#-----------------------------------------------------------------------
 # Interperet the command and log the results
 
 sub interpret_some_lines {
     my ($self, $reader, $context, @args) = @_;
 
-    $self->SUPER::interpret_some_lines($reader, $context, @args);
-    $self->log(@args);
+    eval {
+        $self->SUPER::interpret_some_lines($reader, $context, @args);
+        $self->log(@args);
+    };
+
+    if ($@) {
+        $self->set_script_status(2);
+        die $@;
+    } else {
+        my $status = $self->status() == 0 ? 0 : 1;
+        $self->set_script_status($status);
+    }
 
     return $self;
 }
@@ -105,6 +96,7 @@ sub log {
             if (defined $str) {
                 $str = '$' . $str;
             } else {
+                # TODO: replace with get_command
                 $str = $ref;
                 $str =~ s/Command$//;
                 $str = lc($str);
@@ -131,6 +123,38 @@ sub log {
     return;
 }
 
+#-----------------------------------------------------------------------
+# Put a message to the log file
+
+sub put_log {
+    my ($self, $msg) = @_;
+
+    my $top = $self->get_top();
+    $top->{LOG} = '' unless exists $top->{LOG};
+    $top->{LOG} .= $msg;
+
+    return;
+}
+
+#-----------------------------------------------------------------------
+# Set the status
+
+sub set_script_status {
+    my ($self, $value) = @_;
+
+    my $top = $self->get_top();
+    $top->{STATUS} = $value;
+    return;
+}
+
+#-----------------------------------------------------------------------
+# Check the status
+
+sub status {
+    my ($self) = @_;
+
+    return scalar @{$self->get_value()};
+}
 
 1;
 __END__
@@ -154,7 +178,7 @@ DSLCmd -- Base class for logged commands
 
 =head1 SYNOPSIS
 
-This class should be used as the base class for most single line commands.
+This class is used as the base class for most single line commands.
 It writes a message to the log file with the command line and status after
 a command is run. Unlike DSLVar, which always sets its status to 1, it sets its
 status to the number of results it generates. If there are no results, the
@@ -163,12 +187,27 @@ containing method that invokes it will end early.
 =head1 METHODS
 
 The class supports all the methods of DSLVar, which are defined there. It also
-supports three helper methods for check
+supports methods to handle log messages and the script status
 
-    $value = $self->check_hash_arg($arg);
-    $value = $self->check_list_arg($arg);
-    $value = $self->check_string_arg($arg);
+=head2 get_script_status set_script_status
 
-These methods check a command line argument to see if it has the correct type.
-If it does, it unmarshalls the data contained in the argument. If not, it
-returns undef.
+    my $code = $var->get_script_status();
+    $var->set_script_status($code);
+
+The status of the script is accessed through the get_script_status and
+set_script_status fields. The numeric codes are early exit=0 normal exit=1
+error exit=2.
+
+=head2 get_log put_log clear_log
+
+    my $msg = $var->get_log();
+    $var->put_log();
+    $var->clear_log();
+
+The get_log method retrieves all the log messages. The put_log method appends
+a message to the log. The clear_log method removes any messages. Any messages in
+the log are printed when the script exits.
+
+When subclassing DSLVar, you will overload one or more of the following
+methods.
+

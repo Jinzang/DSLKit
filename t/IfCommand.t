@@ -19,15 +19,11 @@ BEGIN {use_ok("IfCommand");} # test 1
 my $source = <<'EOQ';
 for $i 0 1
 if $i
-log $i
+$j $i
 end
 end
 EOQ
 
 my $block = DSLMock->main($source);
-my $msg = $block->get_log();
-my $msg_ok = <<'EOQ';
-       '1'
-EOQ
-
-is($msg, $msg_ok, "If Command"); # test 2
+my $j = $block->get_var('j')->get_value();
+is_deeply($j, [1], "If block"); # test 2
