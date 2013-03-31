@@ -461,15 +461,8 @@ sub status {
 sub stringify {
     my ($self) = @_;
 
-    my $name = $self->get_name() || 'var';
-    my $value = $self->get_value();
-
-    my $dumper = Data::Dumper->new([$value], [$name]);
-    my @output = split(/\n/, $dumper->Dump());
-
-    shift(@output);
-    pop(@output);
-    return join("\n", @output);
+    my $value = $self->dereferenced_value();
+    return $self->value_to_string($value, 1);
 }
 
 #-----------------------------------------------------------------------
@@ -517,6 +510,41 @@ sub teardown {
 sub terminator {
     my ($self) = @_;
     return DEFAULT_TERMINATOR;
+}
+
+#-----------------------------------------------------------------------
+# Return a value converted into a string
+
+sub value_to_string {
+    my ($self, $value, $multiline) = @_;
+    $multiline = 0 unless defined $multiline;
+
+    my $str;
+    my $ref = ref $value;
+
+    die "Value too complex to convert to string\n" if $ref && $multiline < 0;
+    my $separator = $multiline ? "\n" : ', ';
+
+    if ($ref eq 'ARRAY') {
+        $str = '';
+        foreach my $item (@$value) {
+            $str .= $separator if $str;
+            $str .= $self->value_to_string($item, $multiline-1);
+        }
+
+    } elsif ($ref eq 'HASH') {
+        $str = '';
+        foreach my $name (sort keys %$value) {
+            my $item = $self->value_to_string($value->{$name}, $multiline-1);
+            $str .= $separator if $str;
+            $str .= "$name: $item";
+        }
+
+    } else {
+        $str = $value;
+    }
+    
+    return $str;
 }
 
 1;

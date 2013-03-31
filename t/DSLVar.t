@@ -63,8 +63,8 @@ is($val, undef, "Non-existent var"); # test 14
 $obj->set_value(['one', 'two']);
 my $test = $obj->stringify();
 my $test_ok = <<'EOQ';
-        'one',
-        'two'
+one
+two
 EOQ
 chomp$test_ok;
 is($test, $test_ok, "Stringify list variable"); # test 15
@@ -72,10 +72,8 @@ is($test, $test_ok, "Stringify list variable"); # test 15
 $obj->set_value({'one' => 1, 'two' => 2});
 $test = $obj->stringify();
 $test_ok = <<'EOQ';
-        {
-          'one' => 1,
-          'two' => 2
-        }
+one: 1
+two: 2
 EOQ
 chomp $test_ok;
 is($test, $test_ok, "Stringify hash variable"); # test 16

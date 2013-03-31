@@ -20,7 +20,7 @@ my @args = $log->check('is', $obj);
 $log->run(@args);
 $msg = $log->get_log();
 my $msg_ok = <<'EOQ';
-is           'ok'
+is ok
 EOQ
 is($msg, $msg_ok, "Log message with string variable"); # test 5
 
@@ -30,8 +30,8 @@ $obj->set_value(['one', 'two']);
 $log->run(@args);
 $msg = $log->get_log();
 $msg_ok = <<'EOQ';
-          'one',
-          'two'
+one
+two
 EOQ
 is($msg, $msg_ok, "Log message with list variable"); # test 6
 
@@ -41,9 +41,7 @@ $obj->set_value({'one' => 1, 'two' => 2});
 $log->run(@args);
 $msg = $log->get_log();
 $msg_ok = <<'EOQ';
-          {
-            'one' => 1,
-            'two' => 2
-          }
+one: 1
+two: 2
 EOQ
 is($msg, $msg_ok, "Log message with hash variable"); # test 7
