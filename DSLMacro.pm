@@ -35,11 +35,10 @@ MacroCommand -- Save a block of commands to be run later
 =head1 SYNOPSIS
 
     macro $sum
-    $acc 0
+    set $sum 0
     for $i $*
-    $acc [eval $acc+$i]
+    set $sum [eval $sum+$i]
     end
-    $acc
     end
     $sum 10 20 30
 
