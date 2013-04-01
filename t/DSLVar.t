@@ -72,8 +72,8 @@ is($test, $test_ok, "Stringify list variable"); # test 15
 $obj->set_value({'one' => 1, 'two' => 2});
 $test = $obj->stringify();
 $test_ok = <<'EOQ';
-one: 1
-two: 2
+one:1
+two:2
 EOQ
 chomp $test_ok;
 is($test, $test_ok, "Stringify hash variable"); # test 16

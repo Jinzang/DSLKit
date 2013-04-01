@@ -521,11 +521,12 @@ sub value_to_string {
 
     my $str;
     my $ref = ref $value;
+    my $separator = $multiline ? "\n" : ',';
 
-    die "Value too complex to convert to string\n" if $ref && $multiline < 0;
-    my $separator = $multiline ? "\n" : ', ';
-
-    if ($ref eq 'ARRAY') {
+    if ($ref && $multiline < 0) {
+        $str = '...';
+        
+    } elsif ($ref eq 'ARRAY') {
         $str = '';
         foreach my $item (@$value) {
             $str .= $separator if $str;
@@ -537,7 +538,7 @@ sub value_to_string {
         foreach my $name (sort keys %$value) {
             my $item = $self->value_to_string($value->{$name}, $multiline-1);
             $str .= $separator if $str;
-            $str .= "$name: $item";
+            $str .= "$name:$item";
         }
 
     } else {
