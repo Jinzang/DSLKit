@@ -90,18 +90,20 @@ sub get_data {
 sub run {
     my ($self, $var, @fields) = @_;
 
-    my $data = $self->find_data($var, @fields);
+    my $str;
+    my $value = $self->find_data($var, @fields);
 
-    my $values;
-    if (defined $data) {
+    if (defined $value) {
         my $name = $var->get_name();
         $self->set('var', $name);
         $self->set('fields', \@fields);
+        $str = $self->value_to_string($value)
 
-        $values = $self->get_data($data);
+    } else {
+        $str = '';
     }
 
-    return $values;
+    return $str;
 }
 
 #-----------------------------------------------------------------------
