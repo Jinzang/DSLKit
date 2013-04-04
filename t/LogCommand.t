@@ -41,7 +41,7 @@ $obj->set_value({'one' => 1, 'two' => 2});
 $log->run(@args);
 $msg = $log->get_log();
 $msg_ok = <<'EOQ';
-one: 1
-two: 2
+one:1
+two:2
 EOQ
 is($msg, $msg_ok, "Log message with hash variable"); # test 7
