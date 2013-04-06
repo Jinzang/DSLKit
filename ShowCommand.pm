@@ -95,9 +95,13 @@ sub run {
 
     if (defined $value) {
         my $name = $var->get_name();
-        $self->set('var', $name);
-        $self->set('fields', \@fields);
-        $str = $self->value_to_string($value)
+        if ($name) {
+            $self->set('var', $name);
+            $self->set('fields', \@fields);
+        }
+        
+        my $multiline = 1;
+        $str = $self->value_to_string($value, $multiline)
 
     } else {
         $str = '';
