@@ -518,20 +518,19 @@ sub value_to_string {
     $multiline = 0 unless defined $multiline;
 
     my $str;
-    my $ref = ref $value;
     my $separator = $multiline ? "\n" : ',';
 
-    if ($ref && $multiline < 0) {
+    if (ref($value) && $multiline < 0) {
         $str = '...';
         
-    } elsif ($ref eq 'ARRAY') {
+    } elsif ($value =~ /ARRAY/) {
         $str = '';
         foreach my $item (@$value) {
             $str .= $separator if $str;
             $str .= $self->value_to_string($item, $multiline-1);
         }
 
-    } elsif ($ref eq 'HASH') {
+    } elsif ($value =~ /HASH/) {
         $str = '';
         foreach my $name (sort keys %$value) {
             my $item = $self->value_to_string($value->{$name}, $multiline-1);
