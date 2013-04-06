@@ -187,9 +187,7 @@ sub get_string_value {
 
     my $value;
     if (ref $obj) {
-        $value = $obj->dereferenced_value();
-        return if ref $value;
-
+        $value = $obj->stringify();
     } else {
         $value = $obj;
     }
