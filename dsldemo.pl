@@ -14,5 +14,5 @@ if (@ARGV) {
     unshift(@ARGV, $script);
 }
 
-my $demo = DSLMain->new(stage_dir => "$base_dir/stage");
+my $demo = DSLMain->new();
 $demo->main(@ARGV);
