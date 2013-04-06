@@ -73,7 +73,6 @@ sub main {
     my ($self, @args) = @_;
 
     eval {
-        $self->setup(@args);
         my $reader = $self->get_reader(@args);
         $self->parse_some_lines($reader, $self, @args);
     };
