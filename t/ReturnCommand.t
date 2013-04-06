@@ -5,7 +5,7 @@ use FindBin qw($Bin);
 use lib "$Bin/..";
 use DSLMock;
 
-use Test::More tests => 4;
+use Test::More tests => 3;
 
 BEGIN {use_ok("ReturnCommand");} # test 1
 
