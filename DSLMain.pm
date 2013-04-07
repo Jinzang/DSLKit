@@ -73,6 +73,7 @@ sub main {
     my ($self, @args) = @_;
 
     eval {
+        $self->setup(@args);
         my $reader = $self->get_reader(@args);
         $self->parse_some_lines($reader, $self, @args);
     };
@@ -127,6 +128,8 @@ script and implement the run method. The language commands are
 =item macro - Define a block of commands as a macro
 
 =item new - Define parameters for a command and initialize it
+
+=item return - Return from a macro and set its value
 
 =item set - Set the value of a variable
 
