@@ -7,6 +7,6 @@ use integer;
 
 package MockCommand;
 
-use base qw(DSLCmd);
+use base qw(DSLVar);
 
 1;
