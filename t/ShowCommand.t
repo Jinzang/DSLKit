@@ -58,7 +58,8 @@ $value = $show->get_data($a->{VALUE});
 is_deeply($value, [1, 2], "Get array data"); # test 14
 
 $value = $show->get_data($show);
-is_deeply($value, [qw(SETUP STATE VALUE)], "Get hash data"); # test 15
+is_deeply($value, [qw(SETUP STATE STATUS VALUE)],
+          "Get hash data"); # test 15
 
 #----------------------------------------------------------------------
 # Run

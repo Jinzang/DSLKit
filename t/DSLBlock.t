@@ -10,7 +10,9 @@ use LineReader;
 BEGIN {use_ok("DSLBlock");} # test 1
 
 my $block = DSLBlock->new();
-is_deeply($block, {SETUP => 0, STATE => {}, VALUE => []}, "New block"); # test 2
+is_deeply($block, {SETUP => 0, STATE => {}, STATUS => 1, VALUE => []},
+          "New block"); # test 2
+
 is(ref $block, 'DSLBlock', "Right type"); # test 3
 
 my $first = <<EOQ;

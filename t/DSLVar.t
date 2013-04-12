@@ -10,7 +10,9 @@ use Test::More tests => 37;
 BEGIN {use_ok("DSLVar");} # test 1
 
 my $obj = DSLVar->new();
-is_deeply($obj, {SETUP => 0, STATE => {}, VALUE => []}, "New object"); # test 2
+is_deeply($obj, {SETUP => 0, STATE => {}, STATUS => 1, VALUE => []},
+          "New object"); # test 2
+
 is(ref $obj, 'DSLVar', "Right type"); # test 3
 
 $obj->setup();
@@ -40,10 +42,9 @@ $obj->set_value(['one', 'two']);
 @list = $obj->flatten($obj, 'three');
 is_deeply(\@list, ['one', 'two', 'three'], "Flatten with mixed args"); # test 10
 
-$val = 0;
-$obj->set_value($val);
-$val = $obj->status();
-is($val, 1, "Status"); # test 11
+$obj->set_status(42);
+$val = $obj->get_status();
+is($val, 42, "Status"); # test 11
 
 $ok = {};
 $obj->set_var('ok', $ok);

@@ -18,7 +18,7 @@ sub interpret_a_line {
     my ($obj, @args) = $self->parse_a_line($line, $context);
     $obj->interpret_some_lines($reader, $context, @args);
 
-    return $obj->status();
+    return $obj->get_status();
 }
 
 #-----------------------------------------------------------------------

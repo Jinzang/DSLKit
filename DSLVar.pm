@@ -18,7 +18,7 @@ use constant DEFAULT_TERMINATOR => 'end';
 sub new {
     my ($pkg, $parent, $name) = @_;
 
-    my $self = {SETUP => 0, STATE => {}, VALUE => []};
+    my $self = {SETUP => 0, STATE => {}, STATUS => 1, VALUE => []};
     $self =  bless($self, $pkg);
 
     $self->{PARENT} = $parent if defined $parent;
@@ -167,6 +167,15 @@ sub get_pkg {
 }
 
 #-----------------------------------------------------------------------
+# Get the status field
+
+sub get_status {
+    my ($self) = @_;
+
+    return $self->{STATUS};
+}
+
+#-----------------------------------------------------------------------
 # Get the value of a string valued variable
 
 sub get_string_value {
@@ -262,8 +271,12 @@ sub next_arg {
             my $subline;
             my $reader = NoReader->new;
             ($subline, $line) = $self->subline($line);
+
             my ($obj, @args) = $self->parse_a_line($subline, $context);
             $arg = $obj->interpret_some_lines($reader, $context, @args);
+
+            my $status = $obj->get_status();
+            $self->set_status($status);
 
         } elsif ($line =~ s/^\$\*//) {
             # Star variable, replace with context
@@ -416,6 +429,16 @@ sub setup {
 }
 
 #-----------------------------------------------------------------------
+# Get/set the sta
+
+sub set_status {
+    my ($self, $status) = @_;
+
+    $self->{STATUS} = $status;
+    return;
+}
+
+#-----------------------------------------------------------------------
 # Set the value
 
 sub set_value {
@@ -442,15 +465,6 @@ sub set_var {
     $top->set($name, $obj);
 
     return;
-}
-
-#-----------------------------------------------------------------------
-# Check the status
-
-sub status {
-    my ($self) = @_;
-
-    return 1;
 }
 
 #-----------------------------------------------------------------------
@@ -522,7 +536,7 @@ sub value_to_string {
 
     if (ref($value) && $multiline < 0) {
         $str = '...';
-        
+
     } elsif ($value =~ /ARRAY/) {
         $str = '';
         foreach my $item (@$value) {
@@ -541,7 +555,7 @@ sub value_to_string {
     } else {
         $str = $value;
     }
-    
+
     return $str;
 }
 
@@ -605,20 +619,20 @@ This class also supports a number of getters and setters for its fields
 Get and set a field in the STATE of the variable. Simple variables do not use
 their state.
 
-=head2 get_value set_value
-
-    my $value = $var->get_value();
-    $var->set_value($value);
-
-The value returned by get_value is an array reference. If set_value is called
-with an argument that is not an array reference, it is enclosed in an array
-when it is stored.
-
 =head2 get_name
 
     my $name = $var->get_name();
 
 Get the name of a variable. Returns undef if it has none.
+
+=head2 get_status set_status
+
+    my $value = $var->get_status();
+    $var->set_status($value);
+
+The value returned by get_status is a value indicating the status of the last
+time the command was run. The status is used for controlling interpretation,
+which stops if the status is zero.
 
 =head2 get_top
 
@@ -627,6 +641,15 @@ Get the name of a variable. Returns undef if it has none.
 Return the topmost variable, which is found by tracing up the PARENT refernces.
 The topmost variable has several extra fields, which can be retrieved from any
 variable by several other methods.
+
+=head2 get_value set_value
+
+    my $value = $var->get_value();
+    $var->set_value($value);
+
+The value returned by get_value is an array reference. If set_value is called
+with an argument that is not an array reference, it is enclosed in an array
+when it is stored.
 
 =head2 interpret_some_lines
 

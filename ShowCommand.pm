@@ -99,7 +99,7 @@ sub run {
             $self->set('var', $name);
             $self->set('fields', \@fields);
         }
-        
+
         my $multiline = 1;
         $str = $self->value_to_string($value, $multiline)
 
@@ -108,15 +108,6 @@ sub run {
     }
 
     return $str;
-}
-
-#-----------------------------------------------------------------------
-# Check the status
-
-sub status {
-    my ($self) = @_;
-
-    return 1;
 }
 
 1;

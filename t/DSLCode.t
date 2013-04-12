@@ -10,7 +10,9 @@ use LineReader;
 BEGIN {use_ok("DSLCode");} # test 1
 
 my $code = DSLCode->new();
-is_deeply($code, {SETUP => 0, STATE => {}, VALUE => []}, "New code"); # test 2
+is_deeply($code, {SETUP => 0, STATE => {}, STATUS => 1, VALUE => []},
+          "New code"); # test 2
+
 is(ref $code, 'DSLCode', "Right type"); # test 3
 
 my $lines = <<'EOQ';

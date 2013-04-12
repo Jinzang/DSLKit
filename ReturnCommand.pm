@@ -17,17 +17,7 @@ sub run {
 
     my $var = $self->{PARENT} || $self;
     $var->set_value($value);
-    
-    return $value;
-}
-
-#-----------------------------------------------------------------------
-# Stop execution of macro
-
-sub status {
-    my ($self) = @_;
-
-    return 0;
+    $self->set_status(0);
 }
 
 1;
@@ -47,8 +37,8 @@ setting the status to zero.
 
 =head1 ARGUMENTS
 
-The script takes a list of arguments that are flattend into a single value and assigned
-to its parent.
+The script takes a list of arguments that are flattend into a single value and
+assigned to its parent.
 
 =head1 PARAMETERS
 
