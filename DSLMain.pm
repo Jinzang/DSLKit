@@ -135,7 +135,9 @@ script and implement the run method. The language commands are
 
 =item show - Get the value of a variable field
 
-=item var Initialize a command without setting parameters
+=item var - Initialize a command without setting parameters
+
+=item while - Loop conditionally over a block of commands
 
 =back
 
