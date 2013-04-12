@@ -259,6 +259,22 @@ sub interpret_some_lines {
 }
 
 #-----------------------------------------------------------------------
+# Interpret a bracketed expression
+
+sub interpret_subline {
+    my ($self, $subline, $context) = @_;
+
+    my $reader = NoReader->new;
+    my ($obj, @args) = $self->parse_a_line($subline, $context);
+    my $arg = $obj->interpret_some_lines($reader, $context, @args);
+    
+    my $status = $obj->get_status();
+    $self->set_status($status);
+    
+    return $arg;
+}
+
+#-----------------------------------------------------------------------
 # Return the next argument from a line
 
 sub next_arg {
@@ -269,14 +285,8 @@ sub next_arg {
         if ($line =~ /^\[/) {
             # Bracketed expression, replace with interpreted result
             my $subline;
-            my $reader = NoReader->new;
             ($subline, $line) = $self->subline($line);
-
-            my ($obj, @args) = $self->parse_a_line($subline, $context);
-            $arg = $obj->interpret_some_lines($reader, $context, @args);
-
-            my $status = $obj->get_status();
-            $self->set_status($status);
+            $arg = $self->interpret_subline($subline, $context);
 
         } elsif ($line =~ s/^\$\*//) {
             # Star variable, replace with context
