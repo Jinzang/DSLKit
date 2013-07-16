@@ -75,14 +75,14 @@ sub main {
     eval {
         $self->setup(@args);
         my $reader = $self->get_reader(@args);
-        $self->parse_some_lines($reader, $self, @args);
+        $self->parse_some_lines($reader, @args);
     };
-    
+
     my $errors = '';
     $errors .= $@ if $@;
     $errors .= $self->cleanup();
 
-    die $errors if $errors;    
+    die $errors if $errors;
     return;
 }
 
@@ -187,7 +187,7 @@ execution of the script, or an empty string if no errors occurred.
 =head2 setup
 
     $obj->setup();
-    
+
 Any script specific initialization needed by the script needed by subclasses
 should be done here. In DSLMain, this method does nothing.
 
