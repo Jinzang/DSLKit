@@ -49,7 +49,8 @@ sub check_hash_arg {
     return unless ref $arg;
 
     my $value = $arg->get_value();
-    return if @$value && ref $value->[0] ne 'HASH';
+    return if @$value == 0;
+    return if ref $value->[0] ne 'HASH';
 
     return $value;
 }
@@ -64,7 +65,8 @@ sub check_list_arg {
     return unless ref $arg;
 
     my $value = $arg->get_value();
-    return if @$value && ref $value->[0];
+    return if @$value == 0;
+    return unless ref $value->[0];
 
     return $value;
 }
@@ -267,10 +269,10 @@ sub interpret_subline {
     my $reader = NoReader->new;
     my ($obj, @args) = $self->parse_a_line($subline, $context);
     my $arg = $obj->interpret_some_lines($reader, $context, @args);
-    
+
     my $status = $obj->get_status();
     $self->set_status($status);
-    
+
     return $arg;
 }
 
@@ -730,4 +732,3 @@ first line of the multi-line command.
 The method returns the string used to end a multi line command. Each line is
 parsed into arguments and when the first argument matches the terminator,
 the command is done.
-
