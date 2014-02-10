@@ -66,7 +66,6 @@ sub check_list_arg {
 
     my $value = $arg->get_value();
     return if @$value == 0;
-    return unless ref $value->[0];
 
     return $value;
 }
